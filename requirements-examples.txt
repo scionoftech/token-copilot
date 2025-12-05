@@ -1,0 +1,23 @@
+# Requirements for running token-copilot examples
+# Install with: pip install -r requirements-examples.txt
+
+# Core dependencies
+langchain-core>=0.1.0
+
+# LangChain integration
+langchain-openai>=0.1.0
+
+# LlamaIndex integration
+llama-index-core>=0.10.0
+llama-index-llms-openai>=0.1.0
+
+# LangGraph integration
+langgraph>=0.2.0
+
+# Analytics (optional but recommended)
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+
+# For OpenAI API
+openai>=1.0.0

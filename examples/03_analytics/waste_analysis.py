@@ -9,13 +9,13 @@ This example demonstrates how to identify token waste patterns:
 """
 
 from langchain_openai import ChatOpenAI
-from token_copilot import TokenPilotCallback
+from token_copilot import TokenCoPilotCallback
 import time
 
 
 def simulate_usage_with_waste():
     """Simulate LLM usage with various waste patterns."""
-    callback = TokenPilotCallback()
+    callback = TokenCoPilotCallback()
     llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
 
     print("Simulating LLM usage with waste patterns...")
@@ -127,7 +127,7 @@ def optimization_examples():
 
     # Example 1: Cache system prompts
     print("\n1. BEFORE: Repeated system prompt")
-    callback_before = TokenPilotCallback()
+    callback_before = TokenCoPilotCallback()
     llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback_before])
 
     system_prompt = "You are a helpful assistant."
@@ -139,10 +139,10 @@ def optimization_examples():
 
     # Example 1: AFTER - Using conversation memory (more efficient)
     print("\n   AFTER: Using message history")
-    callback_after = TokenPilotCallback()
+    callback_after = TokenCoPilotCallback()
     llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback_after])
 
-    from langchain.schema import SystemMessage, HumanMessage
+    from langchain_core.messages import SystemMessage, HumanMessage
 
     messages = [SystemMessage(content=system_prompt)]
     for i in range(3):
@@ -156,7 +156,7 @@ def optimization_examples():
 
     # Example 2: Reduce context
     print("\n2. BEFORE: Excessive context")
-    callback_before2 = TokenPilotCallback()
+    callback_before2 = TokenCoPilotCallback()
     llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback_before2])
 
     long_context = "Context: " + " ".join([f"Info{i}" for i in range(500)])
@@ -166,7 +166,7 @@ def optimization_examples():
     print(f"   Cost: ${cost_before2:.4f}")
 
     print("\n   AFTER: Concise context")
-    callback_after2 = TokenPilotCallback()
+    callback_after2 = TokenCoPilotCallback()
     llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback_after2])
 
     short_context = "Context: Relevant info only"
@@ -184,7 +184,7 @@ def continuous_monitoring():
     print("CONTINUOUS MONITORING")
     print("=" * 60)
 
-    callback = TokenPilotCallback()
+    callback = TokenCoPilotCallback()
     llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
 
     # Simulate periodic usage
@@ -216,7 +216,7 @@ def export_waste_data():
     print("EXPORT WASTE DATA")
     print("=" * 60)
 
-    callback = TokenPilotCallback()
+    callback = TokenCoPilotCallback()
     llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
 
     # Generate usage data

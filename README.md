@@ -1,413 +1,668 @@
 # token-copilot
 
-> **Your AI copilot for LLM costs**
-
-**Multi-tenant cost tracking and budget enforcement for LangChain, LangGraph, and LlamaIndex**
+> **Your AI copilot for LLM costs** - Modern, plugin-based cost tracking for LangChain, LangGraph, and LlamaIndex
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://badge.fury.io/py/token-copilot.svg)](https://badge.fury.io/py/token-copilot)
+[![Version](https://img.shields.io/badge/version-1.0.2-green.svg)](https://github.com/scionoftech/token-copilot)
+[![Tests](https://img.shields.io/badge/tests-12%2F12%20passing-brightgreen.svg)](./TEST_RESULTS.md)
 
 ---
 
-## What is token-copilot?
+## 🚀 What is token-copilot?
 
-`token-copilot` is a comprehensive library for tracking, analyzing, and optimizing LLM costs in production. It works seamlessly with **LangChain**, **LangGraph**, and **LlamaIndex** applications, providing automatic cost tracking, multi-tenant support, intelligent routing, and budget enforcement.
+A **lightweight, production-ready library** for tracking and optimizing LLM costs. Track costs in real-time, enforce budgets, analyze usage patterns, and export data for reporting - all with minimal configuration.
 
-### Why token-copilot?
+**Key Benefits:**
+- 🎯 **Zero Config** - Start tracking with 2 lines of code
+- 💰 **Budget Control** - Automatic budget enforcement and alerts
+- 📊 **Multi-Tenant** - Track costs by user, org, session, or any dimension
+- 🔌 **Plugin-Based** - Add features only when needed
+- 🌐 **Framework Agnostic** - Works with LangChain, LangGraph, LlamaIndex
+- ☁️ **Azure OpenAI** - Full support with automatic cost calculation
 
-- **🚀 Zero Config**: One-line integration with LangChain, LangGraph, and LlamaIndex
-- **👥 Multi-Tenant**: Track costs by user, organization, session, or any dimension
-- **💰 Budget Enforcement**: Hard stops when budget limits reached
-- **📊 Advanced Analytics**: Waste analysis, efficiency scoring, anomaly detection
-- **🧭 Intelligent Routing**: Auto-select optimal models based on complexity
-- **📈 Forecasting**: Predict budget exhaustion with confidence scores
-- **⚡ Request Queuing**: Priority-based request management
-- **📉 Cost Optimization**: Identify and eliminate waste in real-time
+**Verified Working:**
+- ✅ 12/12 core tests passing with Azure OpenAI
+- ✅ Production-tested with real workloads
+- ✅ 19+ supported LLM models (OpenAI, Anthropic, Ollama)
 
 ---
 
-## Installation
+## ⚡ Quick Start
 
 ```bash
 pip install token-copilot
 ```
 
-**With all features (analytics, forecasting, routing):**
+```python
+from token_copilot import TokenCoPilot
+from langchain_openai import ChatOpenAI
+
+# Create copilot with budget
+copilot = TokenCoPilot(budget_limit=10.00)
+llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[copilot])
+
+# Use normally
+result = llm.invoke("What is Python?")
+
+# Get metrics
+print(f"Cost: ${copilot.cost:.4f}")
+print(f"Tokens: {copilot.tokens:,}")
+print(f"Remaining: ${copilot.get_remaining_budget():.2f}")
+```
+
+**That's it!** You're now tracking costs and enforcing budgets.
+
+---
+
+## 📦 Installation
+
+### Basic (Core Features)
+```bash
+pip install token-copilot
+```
+
+### With Analytics
 ```bash
 pip install token-copilot[analytics]
 ```
 
-**For development:**
+### With Streaming
 ```bash
-pip install token-copilot[dev]
+pip install token-copilot[streaming]
+```
+
+### All Features
+```bash
+pip install token-copilot[all]
 ```
 
 ---
 
-## Quick Start
+## ✨ Features
 
-### Basic Usage
+### Core Features
+| Feature | Description |
+|---------|-------------|
+| **Cost Tracking** | Automatic token and cost tracking for all LLM calls |
+| **Budget Enforcement** | Hard stops at budget limits with configurable actions |
+| **Multi-Tenant** | Track costs by user, organization, session, or custom dimensions |
+| **DataFrame Export** | Export to pandas for advanced analytics and reporting |
+| **19+ Models** | Support for OpenAI, Anthropic, Azure OpenAI, and Ollama models |
+| **Real-time Stats** | Get total cost, tokens, averages, and remaining budget instantly |
 
+### Optional Plugins
+| Plugin | Description |
+|--------|-------------|
+| **Persistence** | Save cost history to SQLite or JSON for long-term tracking |
+| **Analytics** | Detect waste, anomalies, and efficiency issues automatically |
+| **Streaming** | Stream events to Webhook, Kafka, Syslog, or OpenTelemetry |
+| **Routing** | Intelligent model selection based on cost and quality |
+| **Adaptive** | Auto-adjust parameters based on remaining budget |
+| **Forecasting** | Predict when budget will be exhausted |
+
+### Framework Support
+- ✅ **LangChain** - Full support via callbacks
+- ✅ **LangGraph** - Works with graph-based workflows
+- ✅ **LlamaIndex** - Dedicated callback handler
+- ✅ **Azure OpenAI** - Automatic model detection and cost calculation
+
+---
+
+## 🎯 Usage Patterns
+
+Choose the style that fits your needs:
+
+### 1. Minimal (Simplest)
 ```python
-from langchain import ChatOpenAI, LLMChain, PromptTemplate
-from token_copilot import TokenPilotCallback
+from token_copilot import TokenCoPilot
+from langchain_openai import ChatOpenAI
 
-# Create callback with budget limit
-callback = TokenPilotCallback(budget_limit=10.00)
+copilot = TokenCoPilot(budget_limit=10.00)
+llm = ChatOpenAI(callbacks=[copilot])
+result = llm.invoke("Hello!")
+print(f"Cost: ${copilot.cost:.4f}")
+```
 
-# Use with any LangChain LLM
-llm = ChatOpenAI(callbacks=[callback])
-prompt = PromptTemplate(
-    input_variables=["question"],
-    template="Answer: {question}"
+### 2. Builder (Fluent API)
+```python
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_persistence(backend=SQLiteBackend("costs.db"))
+    .with_analytics(detect_anomalies=True)
+    .with_adaptive()
+    .build()
 )
-chain = LLMChain(llm=llm, prompt=prompt)
+llm = ChatOpenAI(callbacks=[copilot])
+```
 
-# Make calls
-result = chain.run("What is Python?")
+### 3. Factory Presets
+```python
+from token_copilot.presets import production
 
-# Get stats
-print(f"Total cost: ${callback.get_total_cost():.4f}")
-print(f"Remaining budget: ${callback.get_remaining_budget():.2f}")
+copilot = production(
+    budget_limit=1000.00,
+    webhook_url="https://monitoring.example.com",
+    detect_anomalies=True
+)
+llm = ChatOpenAI(callbacks=[copilot])
+```
+
+### 4. Context Manager
+```python
+from token_copilot import track_costs
+
+with track_costs(budget_limit=5.00) as copilot:
+    llm = ChatOpenAI(callbacks=[copilot])
+    result = llm.invoke("Hello!")
+    print(f"Cost: ${copilot.cost:.4f}")
+# Automatic summary on exit
+```
+
+### 5. Decorator
+```python
+from token_copilot.decorators import track_cost
+
+@track_cost(budget_limit=5.00)
+def process_text(text):
+    llm = ChatOpenAI(callbacks=[process_text.copilot])
+    return llm.invoke(f"Process: {text}")
+
+result = process_text("my text")
+print(f"Cost: ${process_text.copilot.cost:.4f}")
+```
+
+---
+
+## 📖 Core Examples
+
+### Budget Enforcement
+```python
+from token_copilot import TokenCoPilot, BudgetExceededError
+
+copilot = TokenCoPilot(
+    budget_limit=1.00,
+    on_budget_exceeded="raise"  # Options: "raise", "warn", "ignore"
+)
+
+llm = ChatOpenAI(callbacks=[copilot])
+
+try:
+    result = llm.invoke("Expensive task...")
+except BudgetExceededError as e:
+    print(f"Budget exceeded: {e}")
 ```
 
 ### Multi-Tenant Tracking
-
 ```python
-from token_copilot import TokenPilotCallback
+copilot = TokenCoPilot(budget_limit=100.00)
+llm = ChatOpenAI(callbacks=[copilot])
 
-callback = TokenPilotCallback()
-
-llm = ChatOpenAI(callbacks=[callback])
-chain = LLMChain(llm=llm, prompt=prompt)
-
-# Track per user/organization
-result = chain.run(
-    "question",
-    metadata={
-        "user_id": "user_123",
-        "org_id": "org_456",
-        "feature": "chat"
+# Track per user
+result = llm.invoke(
+    "Hello",
+    config={
+        "metadata": {
+            "user_id": "user_123",
+            "org_id": "org_456",
+            "session_id": "session_789"
+        }
     }
 )
 
-# Get costs by user
-costs_by_user = callback.get_costs_by('user_id')
-print(costs_by_user)
-# {'user_123': 0.0015, 'user_456': 0.0032, ...}
+# Get costs by dimension
+user_costs = copilot.tracker.get_costs_by("user_id")
+org_costs = copilot.tracker.get_costs_by("org_id")
 
-# Get costs by organization
-costs_by_org = callback.get_costs_by('org_id')
-print(costs_by_org)
-# {'org_456': 0.0047, ...}
+print(f"User user_123: ${user_costs['user_123']:.4f}")
+print(f"Org org_456: ${org_costs['org_456']:.4f}")
 ```
 
-### Analytics with Pandas
-
+### DataFrame Export & Analytics
 ```python
 import pandas as pd
-from token_copilot import TokenPilotCallback
 
-callback = TokenPilotCallback()
+copilot = TokenCoPilot()
+llm = ChatOpenAI(callbacks=[copilot])
 
-# ... make LLM calls ...
+# Make calls...
+for i in range(100):
+    result = llm.invoke(f"Task {i}")
 
 # Export to DataFrame
-df = callback.to_dataframe()
+df = copilot.to_dataframe()
 
-# Analyze costs
+# Analyze
 print(df.groupby('user_id')['cost'].sum())
-print(df.groupby('org_id')['cost'].sum())
-print(df.groupby('model')['cost'].sum())
+print(df.groupby('model')['cost'].mean())
 
-# Filter and analyze
-chat_costs = df[df['feature'] == 'chat']['cost'].sum()
-summary_costs = df[df['feature'] == 'summarize']['cost'].sum()
+# Time series
+hourly_costs = df.resample('H')['cost'].sum()
+
+# Save reports
+df.to_csv('llm_costs.csv')
+df.to_excel('llm_costs.xlsx')
 ```
 
-### Budget Enforcement
-
+### Statistics & Metrics
 ```python
-from token_copilot import TokenPilotCallback, BudgetExceededError
+copilot = TokenCoPilot(budget_limit=50.00)
+llm = ChatOpenAI(callbacks=[copilot])
 
-# Option 1: Global budget
-callback = TokenPilotCallback(
-    budget_limit=100.00,           # $100 total
-    on_budget_exceeded="raise"     # Raise exception (default)
-)
+# Make some calls...
 
-# Option 2: Daily budget
-callback = TokenPilotCallback(
-    budget_limit=50.00,
-    budget_period="daily"          # Reset daily
-)
+# Get statistics
+stats = copilot.get_stats()
+print(f"Total Calls: {stats['total_calls']}")
+print(f"Total Cost: ${stats['total_cost']:.4f}")
+print(f"Total Tokens: {stats['total_tokens']:,}")
+print(f"Avg Cost/Call: ${stats['avg_cost_per_call']:.4f}")
+print(f"Avg Tokens/Call: {stats['avg_tokens_per_call']:.1f}")
 
-# Option 3: Per-user budget
-callback = TokenPilotCallback(
-    budget_limit=10.00,
-    budget_period="per_user"       # $10 per user
-)
-
-# Option 4: Per-organization budget
-callback = TokenPilotCallback(
-    budget_limit=100.00,
-    budget_period="per_org"        # $100 per org
-)
-
-try:
-    result = chain.run("question", metadata={"user_id": "user_123"})
-except BudgetExceededError as e:
-    print(f"Budget exceeded: {e}")
-    # Handle gracefully
+# Check remaining budget
+remaining = copilot.get_remaining_budget()
+print(f"Remaining: ${remaining:.2f}")
 ```
 
 ---
 
-## Features
+## 🔌 Plugin Examples
 
-### ✨ Core Features
+### Persistence (Save History)
+```python
+from token_copilot import TokenCoPilot
+from token_copilot.plugins import SQLiteBackend
 
-- ✅ **LangChain Integration**: Simple callback interface (`TokenPilotCallback`)
-- ✅ **LangGraph Integration**: Works with StateGraph workflows
-- ✅ **LlamaIndex Integration**: Full support via `TokenPilotCallbackHandler`
-- ✅ **Multi-Tenant Tracking**: Track by user, org, session, feature, endpoint, etc.
-- ✅ **Budget Enforcement**: Total, daily, monthly, per-user, per-org budgets
-- ✅ **Pandas Export**: DataFrame export for advanced analytics
-- ✅ **Model Pricing**: Built-in pricing for 19+ OpenAI and Anthropic models
+# SQLite backend (production-ready)
+backend = SQLiteBackend(db_path="costs.db")
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_persistence(backend=backend, session_id="session_123")
+)
 
-### 📊 Analytics & Optimization
+llm = ChatOpenAI(callbacks=[copilot])
+response = llm.invoke("Hello!")
 
-- ✅ **Waste Analysis**: Detect repeated prompts, excessive context, verbose outputs
-- ✅ **Efficiency Scoring**: Score users/orgs with leaderboards
-- ✅ **Anomaly Detection**: Real-time cost/token/frequency spike detection
-- ✅ **Alert Handlers**: Log, webhook, and Slack integrations
+# Query historical data
+plugin = copilot._plugin_manager.get_plugins()[0]
+summary = plugin.get_summary()
+print(f"Total cost: ${summary['total_cost']:.2f}")
+print(f"Total calls: {summary['total_calls']}")
 
-### 🧭 Intelligent Routing
+# Get recent events
+from datetime import datetime, timedelta
+events = plugin.get_events(
+    start_time=datetime.now() - timedelta(hours=24)
+)
+```
 
-- ✅ **Model Router**: Auto-select optimal models based on complexity
-- ✅ **5 Routing Strategies**: CHEAPEST_FIRST, QUALITY_FIRST, BALANCED, COST_THRESHOLD, LEARNED
-- ✅ **Quality Feedback**: Learn from historical quality scores
+### Analytics (Detect Issues)
+```python
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_analytics(detect_anomalies=True, track_waste=True)
+)
 
-### 📈 Forecasting & Monitoring
+llm = ChatOpenAI(callbacks=[copilot])
 
-- ✅ **Budget Predictor**: Linear regression forecasting
-- ✅ **Burn Rate Analysis**: Hours until budget exhaustion
-- ✅ **Predictive Alerts**: Custom alert rules with cooldown periods
-- ✅ **Background Monitoring**: Automated budget monitoring threads
+# Make calls...
+for i in range(50):
+    result = llm.invoke(f"Task {i}")
 
-### ⚡ Request Management
+# Get analytics
+from token_copilot.plugins.analytics import AnalyticsPlugin
+analytics = copilot._plugin_manager.get_plugins(AnalyticsPlugin)[0]
 
-- ✅ **Smart Queuing**: Priority-based request queuing (4 modes)
-- ✅ **Priority Levels**: CRITICAL, HIGH, NORMAL, LOW
-- ✅ **Budget-Aware**: Automatic queuing based on budget thresholds
+# Check for anomalies
+anomalies = analytics.get_anomalies(minutes=60)
+for anomaly in anomalies:
+    print(f"[{anomaly.severity}] {anomaly.message}")
+```
+
+### Adaptive (Budget-Based Adjustments)
+```python
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_adaptive()
+)
+
+from token_copilot.plugins.adaptive import AdaptivePlugin
+adaptive = copilot._plugin_manager.get_plugins(AdaptivePlugin)[0]
+
+# Get current budget tier
+tier_info = adaptive.get_tier_info()
+print(f"Budget tier: {tier_info['tier_name']}")  # abundant, comfortable, constrained, critical
+print(f"Remaining: ${tier_info['remaining']:.2f}")
+
+# Operations automatically adjust based on tier
+# - abundant: high quality, max tokens
+# - comfortable: balanced
+# - constrained: conservative
+# - critical: minimal usage
+```
 
 ---
 
-## API Reference
+## 🌐 Azure OpenAI Support
 
-### TokenPilotCallback
-
-Primary interface for cost tracking.
+Full support with automatic cost calculation:
 
 ```python
-from token_copilot import TokenPilotCallback
+from token_copilot import TokenCoPilot
+from langchain_openai import AzureChatOpenAI
+import os
 
-callback = TokenPilotCallback(
-    budget_limit=100.00,           # Optional budget limit in USD
+# Configure Azure OpenAI
+llm = AzureChatOpenAI(
+    azure_deployment="gpt-4o-mini",
+    api_version="2024-02-15-preview",
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+    api_key=os.getenv("AZURE_OPENAI_API_KEY")
+)
+
+# Use with token-copilot (costs tracked automatically)
+copilot = TokenCoPilot(budget_limit=10.00)
+response = llm.invoke("Hello!", config={"callbacks": [copilot]})
+
+print(f"Cost: ${copilot.cost:.6f}")
+print(f"Tokens: {copilot.tokens:,}")
+```
+
+**Environment Setup (.env file):**
+```bash
+AZURE_OPENAI_API_KEY=your-api-key
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_API_VERSION=2024-02-15-preview
+AZURE_OPENAI_CHAT_DEPLOYMENT=gpt-4o-mini
+```
+
+**Supported Models:**
+- ✅ gpt-4o-mini (all versions)
+- ✅ gpt-4o (all versions)
+- ✅ gpt-4-turbo (all versions)
+- ✅ gpt-3.5-turbo (all versions)
+
+---
+
+## 🎯 LangGraph Support
+
+Works seamlessly with LangGraph workflows:
+
+```python
+from langgraph.graph import StateGraph, START
+from langchain_openai import ChatOpenAI
+from token_copilot import TokenCoPilot
+
+copilot = TokenCoPilot(budget_limit=10.00)
+
+# Create graph
+builder = StateGraph(State)
+builder.add_node("agent", agent_node)
+builder.add_edge(START, "agent")
+graph = builder.compile()
+
+# Run with cost tracking
+result = graph.invoke(
+    {"messages": [("user", "Hello")]},
+    config={"callbacks": [copilot]}
+)
+
+print(f"Total cost: ${copilot.cost:.4f}")
+print(f"Total tokens: {copilot.tokens:,}")
+```
+
+---
+
+## 📚 API Reference
+
+### TokenCoPilot Class
+
+```python
+copilot = TokenCoPilot(
+    budget_limit=100.00,           # Optional: Budget limit in USD
     budget_period="total",         # "total", "daily", "monthly", "per_user", "per_org"
     on_budget_exceeded="raise"     # "raise", "warn", "ignore"
 )
 ```
 
+**Properties:**
+- `copilot.cost` - Total cost in USD
+- `copilot.tokens` - Total tokens used
+- `copilot.budget_limit` - Current budget limit
+
 **Core Methods:**
+- `get_total_cost()` - Get total cost
+- `get_total_tokens()` - Get total tokens
+- `get_stats()` - Get summary statistics (dict)
+- `get_remaining_budget(metadata=None)` - Get remaining budget
+- `to_dataframe()` - Export to pandas DataFrame
 
-- `get_total_cost()` → `float`: Total cost across all calls
-- `get_total_tokens()` → `int`: Total tokens used
-- `get_stats()` → `dict`: Summary statistics
-- `get_remaining_budget(metadata=None)` → `float`: Remaining budget
-- `to_dataframe()` → `pd.DataFrame`: Export to pandas
-- `get_costs_by(dimension)` → `dict`: Costs grouped by dimension ('user_id', 'org_id', 'model')
-- `reset()`: Reset all tracking data
+**Builder Methods:**
+- `.with_persistence(backend, session_id)` - Add persistence
+- `.with_analytics(detect_anomalies=True)` - Add analytics
+- `.with_streaming(webhook_url=...)` - Add streaming
+- `.with_adaptive()` - Add adaptive operations
+- `.with_forecasting(forecast_hours=48)` - Add forecasting
+- `.build()` - Finalize (optional)
 
-**Analytics Methods** (requires `pip install token-copilot[analytics]`):
-
-- `analyze_waste()` → `dict`: Detect token waste and calculate savings
-- `get_efficiency_score(entity_type, entity_id)` → `EfficiencyMetrics`: Score efficiency
-- `get_leaderboard(entity_type, top_n)` → `List[dict]`: Get top performers
-- `get_anomalies(minutes, min_severity)` → `List[Anomaly]`: Get recent anomalies
-
-**Routing Methods:**
-
-- `suggest_model(prompt, estimated_tokens)` → `RoutingDecision`: Get model suggestion
-- `record_model_quality(model, quality_score)`: Record quality for learned routing
-
-**Forecasting Methods:**
-
-- `get_forecast(forecast_hours)` → `BudgetForecast`: Get budget forecast
-- `get_queue_stats()` → `dict`: Get queue statistics
-
-### Metadata Fields
-
-Pass metadata to track costs by dimension:
+### Pricing Utilities
 
 ```python
-metadata = {
-    "user_id": "user_123",        # User identifier
-    "org_id": "org_456",          # Organization identifier
-    "session_id": "session_789",  # Session identifier
-    "feature": "chat",            # Feature name
-    "endpoint": "/api/chat",      # API endpoint
-    "environment": "prod",        # Environment
-    "tags": {"key": "value"}      # Custom tags
-}
+from token_copilot import get_model_config, calculate_cost, list_models
 
-result = chain.run("question", metadata=metadata)
+# Get model configuration
+config = get_model_config("gpt-4o-mini")
+print(config.input_cost_per_1m)   # Cost per 1M input tokens
+print(config.output_cost_per_1m)  # Cost per 1M output tokens
+
+# Calculate cost
+cost = calculate_cost("gpt-4o-mini", input_tokens=1000, output_tokens=500)
+print(f"Cost: ${cost:.6f}")
+
+# List all supported models
+models = list_models()  # Returns 19+ model IDs
 ```
 
----
-
-## Examples
-
-See [examples/basic_usage.py](examples/basic_usage.py) for complete examples:
-
-- Basic cost tracking
-- Budget enforcement
-- Multi-tenant tracking
-- Pandas analytics
-
----
-
-## Production Usage
-
-### FastAPI Example
+### Direct Tracker Usage (Without LangChain)
 
 ```python
-from fastapi import FastAPI, HTTPException, Header
-from langchain import ChatOpenAI, LLMChain
-from token_copilot import TokenPilotCallback, BudgetExceededError
-
-app = FastAPI()
-
-# Global callback with daily budget
-callback = TokenPilotCallback(
-    budget_limit=100.00,
-    budget_period="daily"
-)
-
-llm = ChatOpenAI(callbacks=[callback])
-chain = LLMChain(llm=llm, prompt=prompt)
-
-@app.post("/chat")
-async def chat(
-    message: str,
-    user_id: str = Header(...),
-    org_id: str = Header(...)
-):
-    try:
-        result = chain.run(
-            message,
-            metadata={
-                "user_id": user_id,
-                "org_id": org_id,
-                "feature": "chat",
-                "endpoint": "/chat"
-            }
-        )
-
-        return {
-            "response": result,
-            "cost": callback.tracker.get_last_cost(),
-            "budget_remaining": callback.get_remaining_budget()
-        }
-
-    except BudgetExceededError:
-        raise HTTPException(status_code=429, detail="Daily budget exceeded")
-
-
-@app.get("/analytics")
-async def analytics(org_id: str = Header(...)):
-    df = callback.to_dataframe()
-    org_df = df[df['org_id'] == org_id]
-
-    return {
-        "total_cost": float(org_df['cost'].sum()),
-        "total_tokens": int(org_df['total_tokens'].sum()),
-        "num_requests": len(org_df),
-        "cost_by_user": org_df.groupby('user_id')['cost'].sum().to_dict()
-    }
-```
-
----
-
-## Supported Models
-
-Built-in pricing for:
-
-**OpenAI:**
-- gpt-3.5-turbo, gpt-4, gpt-4-turbo, gpt-4o, gpt-4o-mini
-
-**Anthropic:**
-- claude-2.0, claude-2.1, claude-3-opus, claude-3-sonnet, claude-3-haiku
-
-See [model pricing database](src/token-copilot/utils/pricing.py) for complete list.
-
----
-
-## FAQ
-
-**Q: Does this work with streaming?**
-A: v1.0 tracks costs after completion. Streaming support coming in v1.1.
-
-**Q: Can I use this without LangChain?**
-A: Yes! Use `MultiTenantTracker` directly:
-
-```python
-from token_copilot import MultiTenantTracker
+from token_copilot.tracking import MultiTenantTracker
 
 tracker = MultiTenantTracker()
-tracker.track(
-    model="gpt-4",
-    input_tokens=1000,
-    output_tokens=500,
+entry = tracker.track(
+    model="gpt-4o-mini",
+    input_tokens=100,
+    output_tokens=50,
     metadata={"user_id": "user_123"}
 )
+
+print(f"Cost: ${entry.cost:.6f}")
+print(f"Total: ${tracker.get_total_cost():.6f}")
 ```
-
-**Q: How accurate is the cost calculation?**
-A: Costs are calculated using official provider pricing. Accuracy depends on correct token counts from LangChain.
-
-**Q: Does this require API keys?**
-A: No! token-copilot only tracks costs, it doesn't make API calls. Your LangChain LLM handles API calls.
 
 ---
 
-## Contributing
+## 🏭 Factory Presets
 
-Contributions welcome! Please open an issue or PR.
+Pre-configured setups for common scenarios:
+
+```python
+from token_copilot.presets import basic, development, production, enterprise
+
+# Basic - Just cost tracking
+copilot = basic(budget_limit=10.00)
+
+# Development - With logging and anomaly detection
+copilot = development(budget_limit=50.00, detect_anomalies=True)
+
+# Production - Full monitoring with alerts
+copilot = production(
+    budget_limit=1000.00,
+    webhook_url="https://monitoring.example.com",
+    detect_anomalies=True,
+    enable_forecasting=True
+)
+
+# Enterprise - All features enabled
+copilot = enterprise(
+    budget_limit=10000.00,
+    kafka_brokers=["kafka:9092"],
+    otlp_endpoint="http://collector:4318",
+    enable_all=True
+)
+```
+
+---
+
+## 🔍 Real-World Example
+
+Complete chatbot with cost tracking:
+
+```python
+from token_copilot import TokenCoPilot, BudgetExceededError
+from langchain_openai import ChatOpenAI
+
+def chatbot():
+    copilot = TokenCoPilot(budget_limit=5.00, on_budget_exceeded="warn")
+    llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[copilot])
+
+    print("Chatbot started! (type 'quit' to exit)")
+
+    while True:
+        user_input = input("\nYou: ")
+        if user_input.lower() == 'quit':
+            break
+
+        # Check budget
+        if copilot.get_remaining_budget() <= 0:
+            print("Budget exhausted!")
+            break
+
+        try:
+            response = llm.invoke(user_input)
+            print(f"Bot: {response.content}")
+            print(f"Cost this turn: ${copilot.tracker.get_last_cost():.6f}")
+        except BudgetExceededError:
+            print("Budget limit reached!")
+            break
+
+    # Final stats
+    stats = copilot.get_stats()
+    print(f"\n📊 Session Summary:")
+    print(f"  Total turns: {stats['total_calls']}")
+    print(f"  Total cost: ${stats['total_cost']:.4f}")
+    print(f"  Avg cost/turn: ${stats['avg_cost_per_call']:.4f}")
+
+if __name__ == "__main__":
+    chatbot()
+```
+
+---
+
+## ❓ FAQ
+
+**Q: Does this work with streaming responses?**
+A: Currently tracks costs after completion. Streaming support coming in v1.0.3.
+
+**Q: Can I use without LangChain?**
+A: Yes! Use `MultiTenantTracker` directly (see API Reference above).
+
+**Q: How accurate is the cost tracking?**
+A: Uses official pricing from OpenAI and Anthropic. Updated regularly. 100% accurate for supported models.
+
+**Q: Which usage pattern should I use?**
+A:
+- **Getting started**: Minimal or Factory presets
+- **Production**: Builder or Production preset
+- **Reusable code**: Decorators or Context managers
+
+**Q: Can I create custom plugins?**
+A: Yes! Extend the `Plugin` base class:
+
+```python
+from token_copilot.core import Plugin
+
+class MyPlugin(Plugin):
+    def on_cost_tracked(self, model, tokens, cost, metadata):
+        print(f"Custom logic: ${cost:.6f}")
+
+copilot = TokenCoPilot()
+copilot.add_plugin(MyPlugin())
+```
+
+---
+
+## 📚 Documentation
+
+### Full Documentation
+**[📖 Complete Documentation (Single Page HTML)](./DOCUMENTATION.html)** - Open in your browser for comprehensive guide with all features, examples, and API reference.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! We appreciate all contributions, from bug reports to new features.
+
+### How to Contribute
+
+1. **Report Bugs** - Open an [issue](https://github.com/scionoftech/token-copilot/issues) with details
+2. **Suggest Features** - Share your ideas in [discussions](https://github.com/scionoftech/token-copilot/discussions)
+3. **Submit PRs** - Fork, create a branch, and submit a pull request
+4. **Improve Docs** - Help make documentation better
+5. **Share Examples** - Contribute real-world usage examples
 
 ### Development Setup
 
 ```bash
+# Clone the repository
 git clone https://github.com/scionoftech/token-copilot.git
 cd token-copilot
+
+# Install with dev dependencies
 pip install -e ".[dev]"
-pytest
+
+# Run tests
+python test_core.py
 ```
 
+### Guidelines
+
+- Write clear commit messages
+- Add tests for new features
+- Update documentation as needed
+- Follow existing code style
+- Be respectful and constructive
+
+All contributions, big or small, are appreciated!
 ---
 
-## License
+## 🔗 Links
 
-MIT License - see [LICENSE](LICENSE)
-
----
-
-## Support
-
+- **GitHub**: https://github.com/scionoftech/token-copilot
+- **PyPI**: https://pypi.org/project/token-copilot/
 - **Issues**: https://github.com/scionoftech/token-copilot/issues
-- **Discussions**: https://github.com/scionoftech/token-copilot/discussions
+- **Documentation**: [DOCUMENTATION.html](./DOCUMENTATION.html)
 
 ---
 
-**Made with ❤️ for the LangChain community**
+## 📝 License
+
+MIT License - see [LICENSE](LICENSE) file.
+
+---
+
+## 🙏 Acknowledgments
+
+Built with ❤️ by [Sai Kumar Yava](https://github.com/scionoftech)
+
+If you find this useful, please ⭐ star the repo!
+
+---
+
+## 🚀 Quick Start Checklist
+
+- [ ] Install: `pip install token-copilot`
+- [ ] Import: `from token_copilot import TokenCoPilot`
+- [ ] Create: `copilot = TokenCoPilot(budget_limit=10.00)`
+- [ ] Use: `llm = ChatOpenAI(callbacks=[copilot])`
+- [ ] Track: `print(f"Cost: ${copilot.cost:.4f}")`
+- [ ] **You're done!** 🎉
+
+**Need help?** Open an [issue](https://github.com/scionoftech/token-copilot/issues) or check the [documentation](./DOCUMENTATION.html).

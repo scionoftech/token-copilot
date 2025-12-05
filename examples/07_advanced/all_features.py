@@ -17,7 +17,7 @@ This serves as a reference for production-ready integration.
 """
 
 from langchain_openai import ChatOpenAI
-from token_copilot import TokenPilotCallback
+from token_copilot import TokenCoPilotCallback
 from token_copilot.routing import ModelConfig, RoutingStrategy
 from token_copilot.queuing import QueueMode
 from token_copilot.analytics import log_alert, webhook_alert
@@ -53,7 +53,7 @@ def production_setup():
     ]
 
     # Create callback with ALL features enabled
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         # Budget enforcement
         budget_limit=100.00,
         budget_period="daily",

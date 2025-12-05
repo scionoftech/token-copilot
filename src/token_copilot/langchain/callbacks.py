@@ -45,7 +45,7 @@ except ImportError:
     Priority = None
 
 
-class TokenPilotCallback(BaseCallbackHandler):
+class TokenCoPilotCallback(BaseCallbackHandler):
     """
     LangChain/LangGraph callback for automatic cost tracking and budget enforcement.
 
@@ -62,10 +62,10 @@ class TokenPilotCallback(BaseCallbackHandler):
 
     Example (LangChain):
         >>> from langchain import ChatOpenAI, LLMChain
-        >>> from token_copilot.langchain import TokenPilotCallback
+        >>> from token_copilot.langchain import TokenCoPilotCallback
         >>>
         >>> # Create callback with budget limit
-        >>> callback = TokenPilotCallback(budget_limit=10.00)
+        >>> callback = TokenCoPilotCallback(budget_limit=10.00)
         >>>
         >>> # Use with any LangChain LLM/chain
         >>> llm = ChatOpenAI(callbacks=[callback])
@@ -88,9 +88,9 @@ class TokenPilotCallback(BaseCallbackHandler):
     Example (LangGraph):
         >>> from langgraph.graph import StateGraph, START, END
         >>> from langchain_openai import ChatOpenAI
-        >>> from token_copilot import TokenPilotCallback
+        >>> from token_copilot import TokenCoPilotCallback
         >>>
-        >>> callback = TokenPilotCallback(budget_limit=10.00)
+        >>> callback = TokenCoPilotCallback(budget_limit=10.00)
         >>>
         >>> # Create graph
         >>> builder = StateGraph(State)
@@ -114,6 +114,9 @@ class TokenPilotCallback(BaseCallbackHandler):
         budget_period: str = "total",
         on_budget_exceeded: str = "raise",
 
+        # Streaming params
+        streamer: Optional[Any] = None,  # BaseStreamer
+
         # Analytics params
         anomaly_detection: bool = False,
         anomaly_sensitivity: float = 3.0,
@@ -135,7 +138,7 @@ class TokenPilotCallback(BaseCallbackHandler):
         **kwargs
     ):
         """
-        Initialize TokenPilotCallback.
+        Initialize TokenCoPilotCallback.
 
         Args:
             budget_limit: Budget limit in USD (None = no limit)
@@ -149,6 +152,9 @@ class TokenPilotCallback(BaseCallbackHandler):
                 - "raise": Raise BudgetExceededError (default)
                 - "warn": Log warning but continue
                 - "ignore": No action
+
+            streamer: Optional BaseStreamer for real-time cost event streaming
+                (WebhookStreamer, SyslogStreamer, LogstashStreamer, etc.)
 
             anomaly_detection: Enable anomaly detection
             anomaly_sensitivity: Standard deviation threshold (default 3.0)
@@ -168,11 +174,11 @@ class TokenPilotCallback(BaseCallbackHandler):
 
         Example:
             >>> # Basic usage
-            >>> callback = TokenPilotCallback(budget_limit=100.00)
+            >>> callback = TokenCoPilotCallback(budget_limit=100.00)
             >>>
             >>> # With anomaly detection
             >>> from token_copilot.analytics import log_alert
-            >>> callback = TokenPilotCallback(
+            >>> callback = TokenCoPilotCallback(
             ...     budget_limit=100.00,
             ...     anomaly_detection=True,
             ...     anomaly_sensitivity=3.0,
@@ -186,7 +192,7 @@ class TokenPilotCallback(BaseCallbackHandler):
             ...     ModelConfig("gpt-4o-mini", 0.7, 0.15, 0.60, 128000),
             ...     ModelConfig("gpt-4o", 0.9, 5.0, 15.0, 128000),
             ... ]
-            >>> callback = TokenPilotCallback(
+            >>> callback = TokenCoPilotCallback(
             ...     budget_limit=100.00,
             ...     auto_routing=True,
             ...     routing_models=models,
@@ -206,6 +212,9 @@ class TokenPilotCallback(BaseCallbackHandler):
         )
         # Keep backward compatibility
         self.budget = self.budget_enforcer
+
+        # Store streaming component
+        self.streamer = streamer
 
         # Store current metadata for tracking
         self._current_metadata: Dict[str, Any] = {}
@@ -310,6 +319,32 @@ class TokenPilotCallback(BaseCallbackHandler):
 
             # Update budget
             self.budget_enforcer.add(entry.cost, self._current_metadata)
+
+            # Stream event to external system if configured
+            if self.streamer:
+                try:
+                    from ..streaming.base import StreamEvent
+                    stream_event = StreamEvent(
+                        timestamp=entry.timestamp,
+                        event_type="llm_cost",
+                        model=entry.model,
+                        input_tokens=entry.input_tokens,
+                        output_tokens=entry.output_tokens,
+                        total_tokens=entry.input_tokens + entry.output_tokens,
+                        cost=entry.cost,
+                        user_id=entry.user_id,
+                        org_id=entry.org_id,
+                        session_id=entry.session_id,
+                        feature=entry.feature,
+                        endpoint=entry.endpoint,
+                        environment=entry.environment,
+                        metadata=entry.tags,
+                    )
+                    self.streamer.send_if_enabled(stream_event)
+                except Exception as e:
+                    # Don't fail tracking if streaming fails
+                    import logging
+                    logging.warning(f"Failed to stream event: {e}")
 
             # Check for anomalies
             if self.anomaly_detector:

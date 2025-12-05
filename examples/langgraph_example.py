@@ -9,7 +9,7 @@ from typing import Annotated, TypedDict
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langchain_openai import ChatOpenAI
-from token_copilot import TokenPilotCallback
+from token_copilot import TokenCoPilotCallback
 
 
 # Example 1: Simple StateGraph with cost tracking
@@ -21,7 +21,7 @@ def simple_graph_example():
         messages: Annotated[list, add_messages]
 
     # Create callback
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=10.00,
         budget_period="total"
     )
@@ -63,7 +63,7 @@ def multi_agent_example():
         next: str
 
     # Create callback with per-user budget
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=5.00,
         budget_period="per_user",  # Separate budget per user
         anomaly_detection=True
@@ -139,7 +139,7 @@ def agentic_rag_example():
         steps: list
 
     # Create callback with forecasting
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=100.00,
         predictive_alerts=True,
         forecast_window_hours=24
@@ -231,7 +231,7 @@ def advanced_features_example():
     ]
 
     # Create callback with all features
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=50.00,
         auto_routing=True,
         routing_models=models,

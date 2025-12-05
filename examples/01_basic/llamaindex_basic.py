@@ -8,10 +8,14 @@ This example demonstrates cost tracking in LlamaIndex applications:
 - Multi-step reasoning
 """
 
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Document
+from llama_index.core import VectorStoreIndex, Document, Settings
 from llama_index.core.callbacks import CallbackManager
-from llama_index.llms.openai import OpenAI
-from token_copilot import TokenPilotCallbackHandler
+try:
+    from llama_index.llms.openai import OpenAI
+except ImportError:
+    # Fallback for different package structure
+    from llama_index.core.llms import OpenAI
+from token_copilot import TokenCoPilotCallbackHandler
 
 
 def simple_indexing():
@@ -21,7 +25,7 @@ def simple_indexing():
     print("=" * 60)
 
     # Create callback
-    callback = TokenPilotCallbackHandler(budget_limit=1.00)
+    callback = TokenCoPilotCallbackHandler(budget_limit=1.00)
     callback_manager = CallbackManager([callback])
 
     # Create sample documents
@@ -49,7 +53,7 @@ def query_engine():
     print("Example 2: Query Engine")
     print("=" * 60)
 
-    callback = TokenPilotCallbackHandler(budget_limit=5.00)
+    callback = TokenCoPilotCallbackHandler(budget_limit=5.00)
     callback_manager = CallbackManager([callback])
 
     # Create documents
@@ -95,7 +99,7 @@ def chat_engine():
     print("Example 3: Chat Engine")
     print("=" * 60)
 
-    callback = TokenPilotCallbackHandler(budget_limit=5.00)
+    callback = TokenCoPilotCallbackHandler(budget_limit=5.00)
     callback_manager = CallbackManager([callback])
 
     # Create documents
@@ -139,7 +143,7 @@ def multi_user_tracking():
     print("Example 4: Multi-User Tracking")
     print("=" * 60)
 
-    callback = TokenPilotCallbackHandler(
+    callback = TokenCoPilotCallbackHandler(
         budget_limit=2.00,
         budget_period="per_user"
     )
@@ -187,7 +191,7 @@ def with_analytics():
     print("Example 5: With Analytics")
     print("=" * 60)
 
-    callback = TokenPilotCallbackHandler(
+    callback = TokenCoPilotCallbackHandler(
         budget_limit=10.00,
         anomaly_detection=True,
         predictive_alerts=True
@@ -252,7 +256,7 @@ def custom_llm_settings():
     print("Example 6: Custom LLM Settings")
     print("=" * 60)
 
-    callback = TokenPilotCallbackHandler(budget_limit=5.00)
+    callback = TokenCoPilotCallbackHandler(budget_limit=5.00)
     callback_manager = CallbackManager([callback])
 
     # Custom LLM
@@ -302,7 +306,7 @@ def main():
     print("✅ All examples completed!")
     print("=" * 60)
     print("\nKey Points:")
-    print("  • Use TokenPilotCallbackHandler for LlamaIndex")
+    print("  • Use TokenCoPilotCallbackHandler for LlamaIndex")
     print("  • Create CallbackManager with the callback")
     print("  • Pass callback_manager to index/query/chat engines")
     print("  • All analytics features work the same")

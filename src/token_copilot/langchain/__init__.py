@@ -1,5 +1,8 @@
 """LangChain integration for token_copilot."""
 
-from .callbacks import TokenPilotCallback
+from .callbacks import TokenCoPilotCallback
 
-__all__ = ["TokenPilotCallback"]
+# Backward compatibility alias
+TokenPilotCallback = TokenCoPilotCallback
+
+__all__ = ["TokenCoPilotCallback", "TokenPilotCallback"]

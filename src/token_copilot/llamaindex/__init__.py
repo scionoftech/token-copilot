@@ -1,5 +1,8 @@
 """LlamaIndex integration for token_copilot."""
 
-from .callbacks import TokenPilotCallbackHandler
+from .callbacks import TokenCoPilotCallbackHandler
 
-__all__ = ["TokenPilotCallbackHandler"]
+# Backward compatibility alias
+TokenPilotCallbackHandler = TokenCoPilotCallbackHandler
+
+__all__ = ["TokenCoPilotCallbackHandler", "TokenPilotCallbackHandler"]

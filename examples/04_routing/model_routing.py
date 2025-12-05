@@ -9,7 +9,7 @@ This example demonstrates automatic model selection based on:
 """
 
 from langchain_openai import ChatOpenAI
-from token_copilot import TokenPilotCallback
+from token_copilot import TokenCoPilotCallback
 from token_copilot.routing import ModelConfig, RoutingStrategy
 
 
@@ -54,7 +54,7 @@ def basic_routing():
 
     models = setup_models()
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=10.00,
         auto_routing=True,
         routing_models=models,
@@ -96,7 +96,7 @@ def cheapest_first_strategy():
 
     models = setup_models()
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         auto_routing=True,
         routing_models=models,
         routing_strategy=RoutingStrategy.CHEAPEST_FIRST
@@ -126,7 +126,7 @@ def quality_first_strategy():
 
     models = setup_models()
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         auto_routing=True,
         routing_models=models,
         routing_strategy=RoutingStrategy.QUALITY_FIRST
@@ -157,7 +157,7 @@ def balanced_strategy():
 
     models = setup_models()
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         auto_routing=True,
         routing_models=models,
         routing_strategy=RoutingStrategy.BALANCED
@@ -191,7 +191,7 @@ def cost_threshold_strategy():
 
     models = setup_models()
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         auto_routing=True,
         routing_models=models,
         routing_strategy=RoutingStrategy.COST_THRESHOLD,
@@ -223,7 +223,7 @@ def learned_routing():
 
     models = setup_models()
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         auto_routing=True,
         routing_models=models,
         routing_strategy=RoutingStrategy.LEARNED
@@ -272,7 +272,7 @@ def capability_filtering():
 
     models = setup_models()
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         auto_routing=True,
         routing_models=models,
         routing_strategy=RoutingStrategy.BALANCED
@@ -307,7 +307,7 @@ def actual_usage():
 
     models = setup_models()
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=1.00,
         auto_routing=True,
         routing_models=models,

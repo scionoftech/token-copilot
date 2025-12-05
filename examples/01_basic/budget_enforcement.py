@@ -9,7 +9,7 @@ This example demonstrates different budget enforcement strategies:
 """
 
 from langchain_openai import ChatOpenAI
-from token_copilot import TokenPilotCallback
+from token_copilot import TokenCoPilotCallback
 import time
 
 
@@ -19,7 +19,7 @@ def total_budget():
     print("Example 1: Total Budget Limit")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=0.05,  # $0.05 total
         budget_period="total",
         on_budget_exceeded="raise"  # Raise error when exceeded
@@ -43,7 +43,7 @@ def daily_budget():
     print("Example 2: Daily Budget")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=0.10,  # $0.10 per day
         budget_period="daily",
         on_budget_exceeded="warn"  # Just warn, don't stop
@@ -67,7 +67,7 @@ def per_user_budget():
     print("Example 3: Per-User Budget")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=0.02,  # $0.02 per user
         budget_period="per_user",
         on_budget_exceeded="warn"
@@ -106,7 +106,7 @@ def per_org_budget():
     print("Example 4: Per-Organization Budget")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=0.05,  # $0.05 per org
         budget_period="per_org",
         on_budget_exceeded="warn"
@@ -150,7 +150,7 @@ def different_behaviors():
 
     # Behavior 1: Raise error (default)
     print("\n1. RAISE: Stop execution")
-    callback_raise = TokenPilotCallback(
+    callback_raise = TokenCoPilotCallback(
         budget_limit=0.01,
         on_budget_exceeded="raise"
     )
@@ -164,7 +164,7 @@ def different_behaviors():
 
     # Behavior 2: Warn but continue
     print("\n2. WARN: Log warning and continue")
-    callback_warn = TokenPilotCallback(
+    callback_warn = TokenCoPilotCallback(
         budget_limit=0.01,
         on_budget_exceeded="warn"
     )
@@ -177,7 +177,7 @@ def different_behaviors():
 
     # Behavior 3: Ignore (no action)
     print("\n3. IGNORE: No action")
-    callback_ignore = TokenPilotCallback(
+    callback_ignore = TokenCoPilotCallback(
         budget_limit=0.01,
         on_budget_exceeded="ignore"
     )
@@ -195,7 +195,7 @@ def monthly_budget():
     print("Example 6: Monthly Budget")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=10.00,  # $10 per month
         budget_period="monthly",
         on_budget_exceeded="warn"
@@ -218,7 +218,7 @@ def check_before_call():
     print("Example 7: Check Budget Before Calls")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=0.05,
         on_budget_exceeded="raise"
     )

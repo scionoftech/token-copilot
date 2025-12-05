@@ -10,7 +10,7 @@ This example demonstrates real-time anomaly detection:
 """
 
 from langchain_openai import ChatOpenAI
-from token_copilot import TokenPilotCallback
+from token_copilot import TokenCoPilotCallback
 from token_copilot.analytics import log_alert, webhook_alert
 import time
 import random
@@ -22,7 +22,7 @@ def basic_anomaly_detection():
     print("Example 1: Basic Anomaly Detection")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         budget_limit=10.00,
         anomaly_detection=True,
         anomaly_sensitivity=3.0,  # 3 standard deviations
@@ -70,7 +70,7 @@ def sensitivity_levels():
     for sensitivity, label in sensitivities:
         print(f"\n{label}:")
 
-        callback = TokenPilotCallback(
+        callback = TokenCoPilotCallback(
             anomaly_detection=True,
             anomaly_sensitivity=sensitivity,
         )
@@ -98,7 +98,7 @@ def cost_spike_detection():
     print("Example 3: Cost Spike Detection")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         anomaly_detection=True,
         anomaly_sensitivity=2.0,
         alert_handlers=[log_alert]
@@ -136,7 +136,7 @@ def token_spike_detection():
     print("Example 4: Token Spike Detection")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         anomaly_detection=True,
         anomaly_sensitivity=2.0,
         alert_handlers=[log_alert]
@@ -173,7 +173,7 @@ def frequency_spike_detection():
     print("Example 5: Frequency Spike Detection")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         anomaly_detection=True,
         anomaly_sensitivity=2.0,
         alert_handlers=[log_alert]
@@ -209,7 +209,7 @@ def unusual_model_detection():
     print("Example 6: Unusual Model Usage")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         anomaly_detection=True,
         alert_handlers=[log_alert]
     )
@@ -252,7 +252,7 @@ def custom_alert_handlers():
         print(f"   Time: {anomaly.timestamp.strftime('%H:%M:%S')}")
 
     # Create callback with multiple handlers
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         anomaly_detection=True,
         anomaly_sensitivity=2.0,
         alert_handlers=[log_alert, custom_handler]
@@ -276,7 +276,7 @@ def anomaly_statistics():
     print("Example 8: Anomaly Statistics")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         anomaly_detection=True,
         anomaly_sensitivity=2.0,
     )
@@ -324,7 +324,7 @@ def real_time_monitoring():
     print("Example 9: Real-Time Monitoring")
     print("=" * 60)
 
-    callback = TokenPilotCallback(
+    callback = TokenCoPilotCallback(
         anomaly_detection=True,
         anomaly_sensitivity=2.5,
         alert_handlers=[log_alert]

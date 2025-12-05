@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token-Copilot - Complete Documentation</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --bg-color: #ecf0f1;
+            --code-bg: #2c3e50;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: var(--bg-color);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary-color);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .sidebar h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .sidebar .version {
+            font-size: 14px;
+            color: #95a5a6;
+            margin-bottom: 30px;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+        }
+
+        .sidebar nav ul li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar nav ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .sidebar nav ul li a:hover {
+            background: rgba(52, 152, 219, 0.2);
+            padding-left: 20px;
+        }
+
+        .sidebar nav ul ul {
+            margin-left: 15px;
+            margin-top: 5px;
+        }
+
+        .sidebar nav ul ul li a {
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 40px 60px;
+            background: white;
+        }
+
+        .section {
+            margin-bottom: 60px;
+            scroll-margin-top: 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 28px;
+            color: var(--primary-color);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--bg-color);
+        }
+
+        h3 {
+            font-size: 22px;
+            color: var(--secondary-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        h4 {
+            font-size: 18px;
+            color: var(--primary-color);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        p code, li code {
+            background: #f4f4f4;
+            color: var(--accent-color);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge-new {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .badge-required {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .badge-optional {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #0c5460;
+            color: #0c5460;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #155724;
+            color: #155724;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: #856404;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border-color: #721c24;
+            color: #721c24;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            border-top: 3px solid var(--secondary-color);
+        }
+
+        .feature-card h4 {
+            margin-top: 0;
+            color: var(--secondary-color);
+        }
+
+        /* Quick Links */
+        .quick-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .quick-links a {
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .quick-links a:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Scroll to Top */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--secondary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-decoration: none;
+        }
+
+        .scroll-top:hover {
+            background: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .scroll-top {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <h1>Token-Copilot</h1>
+            <div class="version">v1.0.2</div>
+            <nav>
+                <ul>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#installation">Installation</a></li>
+                    <li><a href="#quick-start">Quick Start</a></li>
+                    <li><a href="#usage-patterns">Usage Patterns</a>
+                        <ul>
+                            <li><a href="#minimal">Minimal</a></li>
+                            <li><a href="#builder">Builder</a></li>
+                            <li><a href="#factory">Factory</a></li>
+                            <li><a href="#context">Context</a></li>
+                            <li><a href="#decorator">Decorator</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#core-features">Core Features</a>
+                        <ul>
+                            <li><a href="#basic-tracking">Basic Tracking</a></li>
+                            <li><a href="#budget">Budget Enforcement</a></li>
+                            <li><a href="#multi-tenant">Multi-Tenant</a></li>
+                            <li><a href="#dataframe">DataFrame Export</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#plugins">Plugins</a>
+                        <ul>
+                            <li><a href="#persistence">Persistence</a></li>
+                            <li><a href="#analytics">Analytics</a></li>
+                            <li><a href="#routing">Routing</a></li>
+                            <li><a href="#adaptive">Adaptive</a></li>
+                            <li><a href="#forecasting">Forecasting</a></li>
+                            <li><a href="#streaming">Streaming</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#integrations">Integrations</a>
+                        <ul>
+                            <li><a href="#langchain">LangChain</a></li>
+                            <li><a href="#llamaindex">LlamaIndex</a></li>
+                            <li><a href="#azure">Azure OpenAI</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#api-reference">API Reference</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Overview -->
+            <section id="overview" class="section">
+                <h1>Token-Copilot Documentation</h1>
+                <p>
+                    <strong>Token-Copilot</strong> is a modern, plugin-based library for tracking, analyzing, and optimizing
+                    LLM costs in production. Built with clean architecture supporting 5 usage patterns - from minimal
+                    tracking to enterprise monitoring.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🎯 Zero Config</h4>
+                        <p>Start tracking with just one line of code</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔌 Plugin-Based</h4>
+                        <p>Add features as needed - analytics, persistence, routing</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>👥 Multi-Tenant</h4>
+                        <p>Track costs by user, organization, or session</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>💰 Budget Control</h4>
+                        <p>Hard stops at limits with flexible enforcement</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📊 Analytics Ready</h4>
+                        <p>Export to pandas for advanced analysis</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🌐 Multi-Framework</h4>
+                        <p>Works with LangChain, LlamaIndex, and Azure OpenAI</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>Version 2.0 Highlights:</strong> 80% simpler API, plugin architecture, 5 usage patterns,
+                    zero breaking changes from v1.x
+                </div>
+            </section>
+
+            <!-- Installation -->
+            <section id="installation" class="section">
+                <h2>Installation</h2>
+
+                <h3>Basic Installation</h3>
+                <pre><code>pip install token-copilot</code></pre>
+
+                <h3>With Optional Features</h3>
+                <pre><code># With analytics support
+pip install token-copilot[analytics]
+
+# With streaming support
+pip install token-copilot[streaming]
+
+# With all features
+pip install token-copilot[all]
+
+# For development
+pip install token-copilot[dev]</code></pre>
+
+                <h3>Requirements</h3>
+                <ul>
+                    <li>Python 3.8+</li>
+                    <li>langchain-core (automatically installed)</li>
+                    <li>Optional: pandas, numpy (for analytics)</li>
+                    <li>Optional: kafka-python, opentelemetry (for streaming)</li>
+                </ul>
+            </section>
+
+            <!-- Quick Start -->
+            <section id="quick-start" class="section">
+                <h2>Quick Start</h2>
+
+                <p>Get started in under 30 seconds:</p>
+
+                <pre><code>from token_copilot import TokenCoPilot
+from langchain_openai import ChatOpenAI
+
+# Create copilot with budget
+copilot = TokenCoPilot(budget_limit=10.00)
+
+# Use with LangChain
+llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[copilot])
+result = llm.invoke("What is Python?")
+
+# Get metrics
+print(f"Cost: ${copilot.cost:.4f}")
+print(f"Tokens: {copilot.tokens}")
+print(f"Remaining: ${copilot.get_remaining_budget():.2f}")</code></pre>
+
+                <div class="alert alert-success">
+                    <strong>That's it!</strong> You're now tracking LLM costs with budget enforcement.
+                </div>
+            </section>
+
+            <!-- Usage Patterns -->
+            <section id="usage-patterns" class="section">
+                <h2>Usage Patterns</h2>
+                <p>Choose the pattern that fits your coding style:</p>
+
+                <!-- Minimal Pattern -->
+                <h3 id="minimal">1. Minimal Pattern (Simplest)</h3>
+                <p>Perfect for getting started or simple scripts:</p>
+                <pre><code>from token_copilot import TokenCoPilot
+from langchain_openai import ChatOpenAI
+
+copilot = TokenCoPilot(budget_limit=10.00)
+llm = ChatOpenAI(callbacks=[copilot])
+
+result = llm.invoke("Hello!")
+print(f"Cost: ${copilot.cost:.4f}")</code></pre>
+
+                <!-- Builder Pattern -->
+                <h3 id="builder">2. Builder Pattern (Fluent API)</h3>
+                <p>Chain methods to add features explicitly:</p>
+                <pre><code>from token_copilot import TokenCoPilot
+
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_streaming(webhook_url="https://example.com/webhook")
+    .with_analytics(detect_anomalies=True)
+    .with_adaptive()
+    .build()
+)
+
+llm = ChatOpenAI(callbacks=[copilot])
+result = llm.invoke("Complex task...")</code></pre>
+
+                <!-- Factory Pattern -->
+                <h3 id="factory">3. Factory Pattern (Presets)</h3>
+                <p>Use pre-configured setups for common scenarios:</p>
+                <pre><code>from token_copilot.presets import basic, development, production, enterprise
+
+# Basic - just cost tracking
+copilot = basic(budget_limit=10.00)
+
+# Development - with logging and anomaly detection
+copilot = development(budget_limit=50.00, detect_anomalies=True)
+
+# Production - monitoring and alerts
+copilot = production(
+    budget_limit=1000.00,
+    webhook_url="https://monitoring.example.com",
+    slack_webhook="https://hooks.slack.com/...",
+    enable_forecasting=True
+)
+
+# Enterprise - all features enabled
+copilot = enterprise(
+    budget_limit=10000.00,
+    kafka_brokers=["kafka1:9092"],
+    enable_all=True
+)</code></pre>
+
+                <!-- Context Managers -->
+                <h3 id="context">4. Context Managers (Pythonic)</h3>
+                <p>Scoped tracking with automatic cleanup:</p>
+                <pre><code>from token_copilot import track_costs, with_budget, monitored
+
+# General tracking
+with track_costs(budget_limit=5.00) as copilot:
+    llm = ChatOpenAI(callbacks=[copilot])
+    result = llm.invoke("Hello!")
+    print(f"Cost: ${copilot.cost:.4f}")
+# Automatic summary on exit
+
+# Budget-focused
+with with_budget(limit=10.00, warn_at=0.8) as budget:
+    llm = ChatOpenAI(callbacks=[budget])
+    for task in tasks:
+        if budget.get_remaining_budget() > 0:
+            result = llm.invoke(task)
+
+# Monitored operations
+with monitored(name="data_processing", budget_limit=10.00) as copilot:
+    llm = ChatOpenAI(callbacks=[copilot])
+    for doc in documents:
+        result = llm.invoke(f"Process: {doc}")
+# Logs: "Operation [data_processing]: Cost=$X, Tokens=Y"</code></pre>
+
+                <!-- Decorators -->
+                <h3 id="decorator">5. Decorators (Reusable)</h3>
+                <p>Function-level tracking for reusable code:</p>
+                <pre><code>from token_copilot.decorators import track_cost, enforce_budget, monitored
+
+# Track cost decorator
+@track_cost(budget_limit=5.00)
+def summarize_text(text):
+    llm = ChatOpenAI(callbacks=[summarize_text.copilot])
+    return llm.invoke(f"Summarize: {text}")
+
+result = summarize_text("Long text...")
+print(f"Cost: ${summarize_text.copilot.cost:.4f}")
+
+# Enforce budget decorator
+@enforce_budget(limit=1.00, on_exceeded="raise")
+def expensive_task(copilot):
+    llm = ChatOpenAI(callbacks=[copilot])
+    return llm.invoke("Expensive operation...")
+
+# Monitored decorator
+@monitored(name="analysis", budget_limit=10.00)
+def analyze_document(doc, copilot):
+    llm = ChatOpenAI(callbacks=[copilot])
+    return llm.invoke(f"Analyze: {doc}")
+
+result = analyze_document("My document")
+# Automatically logs cost and tokens</code></pre>
+
+                <div class="alert alert-info">
+                    <strong>Which pattern to use?</strong><br>
+                    • Getting started: Minimal or Factory presets<br>
+                    • Production: Builder or Production preset<br>
+                    • Reusable code: Decorators or Context managers<br>
+                    • Enterprise: Enterprise preset with custom config
+                </div>
+            </section>
+
+            <!-- Core Features -->
+            <section id="core-features" class="section">
+                <h2>Core Features</h2>
+
+                <!-- Basic Tracking -->
+                <h3 id="basic-tracking">Basic Cost Tracking</h3>
+                <p>Track costs and tokens automatically:</p>
+                <pre><code>from token_copilot import TokenCoPilot
+from langchain_openai import ChatOpenAI
+
+copilot = TokenCoPilot()
+llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[copilot])
+
+# Make calls
+result1 = llm.invoke("What is AI?")
+result2 = llm.invoke("Explain machine learning")
+
+# Get totals
+print(f"Total Cost: ${copilot.cost:.4f}")
+print(f"Total Tokens: {copilot.tokens:,}")
+
+# Get statistics
+stats = copilot.get_stats()
+print(f"Total Calls: {stats['total_calls']}")
+print(f"Average Cost: ${stats['avg_cost_per_call']:.4f}")
+print(f"Average Tokens: {stats['avg_tokens_per_call']:.1f}")</code></pre>
+
+                <!-- Budget Enforcement -->
+                <h3 id="budget">Budget Enforcement</h3>
+                <p>Automatically enforce spending limits:</p>
+                <pre><code>from token_copilot import TokenCoPilot, BudgetExceededError
+
+# Strict enforcement (raises exception)
+copilot = TokenCoPilot(
+    budget_limit=1.00,
+    on_budget_exceeded="raise"  # Options: "raise", "warn", "ignore"
+)
+
+llm = ChatOpenAI(callbacks=[copilot])
+
+try:
+    result = llm.invoke("Long expensive task...")
+except BudgetExceededError as e:
+    print(f"Budget limit reached: {e}")
+
+# Check remaining budget
+remaining = copilot.get_remaining_budget()
+print(f"Remaining: ${remaining:.2f}")
+
+# Budget periods
+copilot = TokenCoPilot(
+    budget_limit=100.00,
+    budget_period="daily"  # Options: "total", "daily", "monthly", "per_user", "per_org"
+)</code></pre>
+
+                <!-- Multi-Tenant -->
+                <h3 id="multi-tenant">Multi-Tenant Tracking</h3>
+                <p>Track costs by user, organization, session, or any dimension:</p>
+                <pre><code>copilot = TokenCoPilot(budget_limit=100.00)
+llm = ChatOpenAI(callbacks=[copilot])
+
+# Track per user
+result = llm.invoke(
+    "Hello",
+    config={
+        "metadata": {
+            "user_id": "user_123",
+            "org_id": "org_456",
+            "session_id": "session_789",
+            "feature": "chat",
+            "environment": "prod"
+        }
+    }
+)
+
+# Get costs by dimension
+user_costs = copilot.tracker.get_costs_by("user_id")
+org_costs = copilot.tracker.get_costs_by("org_id")
+feature_costs = copilot.tracker.get_costs_by("feature")
+
+print(f"User user_123 cost: ${user_costs['user_123']:.4f}")
+print(f"Org org_456 cost: ${org_costs['org_456']:.4f}")
+
+# Per-user budgets
+copilot = TokenCoPilot(
+    budget_limit=10.00,
+    budget_period="per_user"
+)
+
+# Check user-specific budget
+user_remaining = copilot.get_remaining_budget(
+    metadata={"user_id": "user_123"}
+)</code></pre>
+
+                <!-- DataFrame Export -->
+                <h3 id="dataframe">DataFrame Export</h3>
+                <p>Export to pandas for advanced analytics:</p>
+                <pre><code>import pandas as pd
+from token_copilot import TokenCoPilot
+
+copilot = TokenCoPilot()
+llm = ChatOpenAI(callbacks=[copilot])
+
+# Make some calls...
+for i in range(100):
+    result = llm.invoke(f"Task {i}")
+
+# Export to DataFrame
+df = copilot.to_dataframe()
+
+# Available columns:
+# - timestamp (index)
+# - model, input_tokens, output_tokens, total_tokens
+# - cost, user_id, org_id, session_id
+# - feature, endpoint, environment
+# - any custom tags from metadata
+
+# Analytics examples
+print(df.head())
+print(df.describe())
+
+# Group by user
+user_costs = df.groupby('user_id')['cost'].sum()
+print(user_costs)
+
+# Group by model
+model_costs = df.groupby('model').agg({
+    'cost': 'sum',
+    'total_tokens': 'sum'
+})
+print(model_costs)
+
+# Filter by date
+today = df[df.index.date == pd.Timestamp.today().date()]
+
+# Time series analysis
+hourly = df.resample('H')['cost'].sum()
+
+# Save to CSV
+df.to_csv('llm_costs.csv')
+
+# Save to Excel
+df.to_excel('llm_costs.xlsx')</code></pre>
+            </section>
+
+            <!-- Plugins -->
+            <section id="plugins" class="section">
+                <h2>Plugins</h2>
+                <p>Extend functionality with plugins:</p>
+
+                <!-- Persistence Plugin -->
+                <h3 id="persistence">Persistence Plugin</h3>
+                <p>Save cost data to database for historical analysis:</p>
+                <pre><code>from token_copilot import TokenCoPilot
+from token_copilot.plugins import SQLiteBackend, JSONBackend
+
+# SQLite Backend (recommended for production)
+backend = SQLiteBackend(db_path="costs.db")
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_persistence(backend=backend, session_id="session_123")
+)
+
+# JSON Backend (simple file-based)
+backend = JSONBackend(file_path="costs.json")
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_persistence(backend=backend)
+)
+
+# Use normally - costs automatically saved
+llm = ChatOpenAI(callbacks=[copilot])
+response = llm.invoke("Hello!")
+
+# Query historical data
+plugin = copilot._plugin_manager.get_plugins()[0]
+
+# Get summary
+summary = plugin.get_summary()
+print(f"Total cost: ${summary['total_cost']:.2f}")
+print(f"Total calls: {summary['total_calls']}")
+
+# Get events from last 24 hours
+from datetime import datetime, timedelta
+start = datetime.now() - timedelta(days=1)
+events = plugin.get_events(start_time=start)
+
+# Filter by session
+events = plugin.get_events(session_id="session_123")
+
+# Close backend
+backend.close()</code></pre>
+
+                <h4>Custom Backend</h4>
+                <pre><code>from token_copilot.plugins.persistence import PersistenceBackend
+
+class RedisBackend(PersistenceBackend):
+    def __init__(self, redis_client):
+        self.redis = redis_client
+
+    def save_event(self, event):
+        # Save to Redis
+        pass
+
+    def get_events(self, **kwargs):
+        # Retrieve from Redis
+        pass
+
+    def get_summary(self):
+        # Calculate summary
+        pass</code></pre>
+
+                <!-- Analytics Plugin -->
+                <h3 id="analytics">Analytics Plugin</h3>
+                <p>Detect waste, anomalies, and inefficiencies:</p>
+                <pre><code>from token_copilot.plugins import AnalyticsPlugin
+from token_copilot.analytics import log_alert, slack_alert, webhook_alert
+
+copilot = TokenCoPilot(budget_limit=100.00)
+
+# Add analytics
+copilot.add_plugin(AnalyticsPlugin(
+    detect_anomalies=True,
+    anomaly_sensitivity=3.0,  # Standard deviations
+    alert_handlers=[log_alert, slack_alert],
+    track_waste=True,
+    track_efficiency=True
+))
+
+# Or use builder
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_analytics(
+        detect_anomalies=True,
+        alert_handlers=[log_alert]
+    )
+)
+
+# Get analytics plugin
+from token_copilot.plugins.analytics import AnalyticsPlugin
+analytics = copilot._plugin_manager.get_plugins(AnalyticsPlugin)[0]
+
+# Waste analysis
+waste_report = analytics.analyze_waste()
+print(f"Total waste: ${waste_report['summary']['total_waste_cost']:.2f}")
+print(f"Waste percentage: {waste_report['summary']['waste_percentage']:.1f}%")
+print(f"Monthly savings potential: ${waste_report['summary']['monthly_savings']:.2f}")
+
+for recommendation in waste_report['recommendations']:
+    print(f"- {recommendation}")
+
+# Efficiency scoring
+efficiency = analytics.get_efficiency_score("user_id", "user_123")
+print(f"Overall score: {efficiency.overall_score:.2f}")
+print(f"Token efficiency: {efficiency.token_efficiency:.2f}")
+print(f"Cost efficiency: {efficiency.cost_efficiency:.2f}")
+
+# Get anomalies
+anomalies = analytics.get_anomalies(minutes=60, min_severity='medium')
+for anomaly in anomalies:
+    print(f"[{anomaly.severity}] {anomaly.message}")
+
+# Leaderboard
+leaderboard = analytics.get_leaderboard('user_id', top_n=10)
+for entry in leaderboard:
+    print(f"{entry['rank']}. {entry['entity_id']}: {entry['overall_score']:.2f}")</code></pre>
+
+                <h4>Custom Alert Handlers</h4>
+                <pre><code>def custom_alert(anomaly):
+    """Custom alert handler."""
+    print(f"ALERT: {anomaly.message}")
+    # Send to your monitoring system
+    # Post to Slack
+    # Send email
+    # etc.
+
+copilot.with_analytics(alert_handlers=[custom_alert])</code></pre>
+
+                <!-- Routing Plugin -->
+                <h3 id="routing">Routing Plugin</h3>
+                <p>Intelligent model selection based on cost and quality:</p>
+                <pre><code>from token_copilot.plugins import RoutingPlugin
+from token_copilot import ModelConfig
+
+# Define available models
+models = [
+    ModelConfig(
+        model_id="gpt-4o-mini",
+        provider="openai",
+        context_window=128000,
+        max_output_tokens=4096,
+        input_cost_per_1m=0.15,
+        output_cost_per_1m=0.60
+    ),
+    ModelConfig(
+        model_id="gpt-4o",
+        provider="openai",
+        context_window=128000,
+        max_output_tokens=4096,
+        input_cost_per_1m=5.0,
+        output_cost_per_1m=15.0
+    )
+]
+
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_routing(
+        models=models,
+        strategy="balanced"  # Options: "cheapest_first", "quality_first", "balanced"
+    )
+)
+
+# Get routing plugin
+from token_copilot.plugins.routing import RoutingPlugin
+routing = copilot._plugin_manager.get_plugins(RoutingPlugin)[0]
+
+# Get routing suggestion
+decision = routing.suggest_model(
+    prompt="Simple greeting",
+    estimated_tokens=100
+)
+print(f"Selected model: {decision.selected_model}")
+print(f"Estimated cost: ${decision.estimated_cost:.4f}")
+print(f"Reason: {decision.reason}")
+
+# Use suggested model
+llm = ChatOpenAI(model=decision.selected_model, callbacks=[copilot])
+result = llm.invoke("Hello!")
+
+# Model statistics
+model_stats = routing.get_model_stats()
+for model, stats in model_stats.items():
+    print(f"{model}: {stats['calls']} calls")</code></pre>
+
+                <!-- Adaptive Plugin -->
+                <h3 id="adaptive">Adaptive Plugin</h3>
+                <p>Auto-adjust parameters based on budget:</p>
+                <pre><code>from token_copilot.plugins import AdaptivePlugin
+
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_adaptive()
+)
+
+# Get adaptive plugin
+from token_copilot.plugins.adaptive import AdaptivePlugin
+adaptive = copilot._plugin_manager.get_plugins(AdaptivePlugin)[0]
+
+# Get current budget tier
+tier_info = adaptive.get_tier_info()
+print(f"Budget tier: {tier_info['tier_name']}")
+print(f"Remaining: ${tier_info['remaining']:.2f}")
+
+# Budget tiers:
+# - abundant: >80% remaining (high quality, max tokens)
+# - comfortable: 50-80% remaining (balanced)
+# - constrained: 20-50% remaining (conservative)
+# - critical: <20% remaining (minimal usage)
+
+# Get adaptive operations
+ops = adaptive.operations
+
+# Operations automatically adjust based on budget tier
+result = ops.generate(llm, "Explain quantum computing")
+# Automatically adjusts max_tokens, temperature, etc.
+
+# Context operations
+with ops.budget_aware_section("expensive_op") as section:
+    # Operations in this section are budget-aware
+    result = llm.invoke("Complex task...")
+
+# Gate operations
+@ops.budget_gate(min_budget=1.00)
+def expensive_operation():
+    # Only runs if budget >= $1.00
+    pass</code></pre>
+
+                <!-- Forecasting Plugin -->
+                <h3 id="forecasting">Forecasting Plugin</h3>
+                <p>Predict budget exhaustion:</p>
+                <pre><code>from token_copilot.plugins import ForecastingPlugin
+
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_forecasting(forecast_hours=48)
+)
+
+# Get forecasting plugin
+from token_copilot.plugins.forecasting import ForecastingPlugin
+forecasting = copilot._plugin_manager.get_plugins(ForecastingPlugin)[0]
+
+# Get forecast
+forecast = forecasting.get_forecast()
+
+print(f"Current cost: ${forecast.current_cost:.4f}")
+print(f"Remaining: ${forecast.remaining_budget:.2f}")
+print(f"Burn rate: ${forecast.burn_rate_per_hour:.4f}/hour")
+
+if forecast.hours_until_exhausted:
+    print(f"Budget exhausts in: {forecast.hours_until_exhausted:.1f} hours")
+
+# Projections
+print(f"24h projection: ${forecast.projected_cost_24h:.2f}")
+print(f"7d projection: ${forecast.projected_cost_7d:.2f}")
+print(f"30d projection: ${forecast.projected_cost_30d:.2f}")
+
+print(f"Confidence: {forecast.confidence:.2%}")
+print(f"Trend: {forecast.trend}")
+
+# Recommendations
+for rec in forecast.recommendations:
+    print(f"- {rec}")</code></pre>
+
+                <!-- Streaming Plugin -->
+                <h3 id="streaming">Streaming Plugin</h3>
+                <p>Real-time cost event streaming:</p>
+                <pre><code>from token_copilot.plugins import StreamingPlugin
+
+# Webhook streaming
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_streaming(webhook_url="https://example.com/webhook")
+)
+
+# Kafka streaming
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_streaming(
+        kafka_brokers=["localhost:9092"],
+        kafka_topic="llm_costs"
+    )
+)
+
+# Syslog streaming
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_streaming(
+        syslog_host="syslog.example.com",
+        syslog_port=514
+    )
+)
+
+# OpenTelemetry
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_streaming(
+        otlp_endpoint="http://collector:4318"
+    )
+)
+
+# Multiple backends
+copilot = (TokenCoPilot(budget_limit=100.00)
+    .with_streaming(
+        webhook_url="https://example.com/webhook",
+        kafka_brokers=["kafka:9092"],
+        kafka_topic="costs",
+        otlp_endpoint="http://collector:4318"
+    )
+)
+
+# Events are automatically streamed in real-time
+llm = ChatOpenAI(callbacks=[copilot])
+result = llm.invoke("Hello!")  # Event streamed immediately</code></pre>
+            </section>
+
+            <!-- Integrations -->
+            <section id="integrations" class="section">
+                <h2>Framework Integrations</h2>
+
+                <!-- LangChain -->
+                <h3 id="langchain">LangChain Integration</h3>
+                <pre><code>from token_copilot import TokenCoPilot
+from langchain_openai import ChatOpenAI
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+
+copilot = TokenCoPilot(budget_limit=10.00)
+
+# With ChatOpenAI
+llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[copilot])
+result = llm.invoke("Hello!")
+
+# With chains
+template = PromptTemplate(
+    input_variables=["topic"],
+    template="Explain {topic} in simple terms"
+)
+chain = LLMChain(llm=llm, prompt=template)
+result = chain.run(topic="quantum computing")
+
+# With streaming
+for chunk in llm.stream("Tell me a story"):
+    print(chunk.content, end="")
+
+print(f"\nTotal cost: ${copilot.cost:.4f}")</code></pre>
+
+                <!-- LlamaIndex -->
+                <h3 id="llamaindex">LlamaIndex Integration</h3>
+                <pre><code>from token_copilot.llamaindex import TokenCoPilotCallbackHandler
+from llama_index.core import Settings, VectorStoreIndex, SimpleDirectoryReader
+from llama_index.llms.openai import OpenAI
+
+# Create callback handler
+copilot = TokenCoPilotCallbackHandler(budget_limit=10.00)
+
+# Configure LlamaIndex
+llm = OpenAI(model="gpt-4o-mini")
+Settings.llm = llm
+Settings.callback_manager.add_handler(copilot)
+
+# Use with queries
+documents = SimpleDirectoryReader("data").load_data()
+index = VectorStoreIndex.from_documents(documents)
+query_engine = index.as_query_engine()
+
+response = query_engine.query("What is this document about?")
+print(response)
+
+# Get costs
+print(f"Cost: ${copilot.get_total_cost():.4f}")
+print(f"Tokens: {copilot.get_total_tokens():,}")</code></pre>
+
+                <!-- Azure OpenAI -->
+                <h3 id="azure">Azure OpenAI Integration</h3>
+                <p>Full support for Azure OpenAI with automatic cost tracking:</p>
+                <pre><code>from token_copilot import TokenCoPilot
+from langchain_openai import AzureChatOpenAI
+import os
+
+# Configure Azure OpenAI
+llm = AzureChatOpenAI(
+    azure_deployment="gpt-4o-mini",
+    api_version="2024-02-15-preview",
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+    api_key=os.getenv("AZURE_OPENAI_API_KEY")
+)
+
+# Use with token-copilot
+copilot = TokenCoPilot(budget_limit=10.00)
+response = llm.invoke("Hello!", config={"callbacks": [copilot]})
+
+print(f"Cost: ${copilot.cost:.6f}")
+print(f"Tokens: {copilot.tokens:,}")</code></pre>
+
+                <h4>Environment Setup</h4>
+                <p>Create a <code>.env</code> file:</p>
+                <pre><code>AZURE_OPENAI_API_KEY=your-api-key
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_API_VERSION=2024-02-15-preview
+AZURE_OPENAI_CHAT_DEPLOYMENT=gpt-4o-mini</code></pre>
+
+                <h4>Supported Models</h4>
+                <ul>
+                    <li>gpt-4o-mini (all versions)</li>
+                    <li>gpt-4o (all versions)</li>
+                    <li>gpt-4-turbo (all versions)</li>
+                    <li>gpt-3.5-turbo (all versions)</li>
+                </ul>
+            </section>
+
+            <!-- API Reference -->
+            <section id="api-reference" class="section">
+                <h2>API Reference</h2>
+
+                <h3>TokenCoPilot Class</h3>
+                <pre><code>class TokenCoPilot(
+    budget_limit: Optional[float] = None,
+    budget_period: str = "total",
+    on_budget_exceeded: str = "raise"
+)</code></pre>
+
+                <h4>Parameters</h4>
+                <table>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>budget_limit</code></td>
+                        <td>float</td>
+                        <td>None</td>
+                        <td>Budget limit in USD</td>
+                    </tr>
+                    <tr>
+                        <td><code>budget_period</code></td>
+                        <td>str</td>
+                        <td>"total"</td>
+                        <td>"total", "daily", "monthly", "per_user", "per_org"</td>
+                    </tr>
+                    <tr>
+                        <td><code>on_budget_exceeded</code></td>
+                        <td>str</td>
+                        <td>"raise"</td>
+                        <td>"raise", "warn", "ignore"</td>
+                    </tr>
+                </table>
+
+                <h4>Properties</h4>
+                <table>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>cost</code></td>
+                        <td>float</td>
+                        <td>Total cost in USD</td>
+                    </tr>
+                    <tr>
+                        <td><code>tokens</code></td>
+                        <td>int</td>
+                        <td>Total tokens used</td>
+                    </tr>
+                    <tr>
+                        <td><code>budget_limit</code></td>
+                        <td>float</td>
+                        <td>Budget limit</td>
+                    </tr>
+                </table>
+
+                <h4>Methods</h4>
+                <table>
+                    <tr>
+                        <th>Method</th>
+                        <th>Returns</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>get_total_cost()</code></td>
+                        <td>float</td>
+                        <td>Get total cost</td>
+                    </tr>
+                    <tr>
+                        <td><code>get_total_tokens()</code></td>
+                        <td>int</td>
+                        <td>Get total tokens</td>
+                    </tr>
+                    <tr>
+                        <td><code>get_stats()</code></td>
+                        <td>dict</td>
+                        <td>Get summary statistics</td>
+                    </tr>
+                    <tr>
+                        <td><code>get_remaining_budget(metadata=None)</code></td>
+                        <td>float</td>
+                        <td>Get remaining budget</td>
+                    </tr>
+                    <tr>
+                        <td><code>to_dataframe()</code></td>
+                        <td>DataFrame</td>
+                        <td>Export to pandas DataFrame</td>
+                    </tr>
+                    <tr>
+                        <td><code>add_plugin(plugin)</code></td>
+                        <td>None</td>
+                        <td>Add a plugin</td>
+                    </tr>
+                    <tr>
+                        <td><code>with_streaming(**kwargs)</code></td>
+                        <td>Self</td>
+                        <td>Add streaming plugin</td>
+                    </tr>
+                    <tr>
+                        <td><code>with_analytics(**kwargs)</code></td>
+                        <td>Self</td>
+                        <td>Add analytics plugin</td>
+                    </tr>
+                    <tr>
+                        <td><code>with_routing(**kwargs)</code></td>
+                        <td>Self</td>
+                        <td>Add routing plugin</td>
+                    </tr>
+                    <tr>
+                        <td><code>with_adaptive()</code></td>
+                        <td>Self</td>
+                        <td>Add adaptive plugin</td>
+                    </tr>
+                    <tr>
+                        <td><code>with_forecasting(**kwargs)</code></td>
+                        <td>Self</td>
+                        <td>Add forecasting plugin</td>
+                    </tr>
+                    <tr>
+                        <td><code>with_persistence(**kwargs)</code></td>
+                        <td>Self</td>
+                        <td>Add persistence plugin</td>
+                    </tr>
+                    <tr>
+                        <td><code>build()</code></td>
+                        <td>Self</td>
+                        <td>Finalize builder (optional)</td>
+                    </tr>
+                </table>
+
+                <h3>Pricing Functions</h3>
+                <pre><code>from token_copilot import (
+    get_model_config,
+    calculate_cost,
+    list_models,
+    list_providers
+)
+
+# Get model configuration
+config = get_model_config("gpt-4o-mini")
+print(config.input_cost_per_1m)  # Cost per 1M input tokens
+print(config.output_cost_per_1m)  # Cost per 1M output tokens
+
+# Calculate cost
+cost = calculate_cost("gpt-4o-mini", input_tokens=1000, output_tokens=500)
+
+# List all models
+models = list_models()  # Returns list of model IDs
+
+# List providers
+providers = list_providers()  # Returns ["openai", "anthropic", "ollama"]</code></pre>
+
+                <h3>Context Managers</h3>
+                <pre><code>from token_copilot import track_costs, with_budget, monitored
+
+# track_costs
+with track_costs(budget_limit=5.00) as copilot:
+    # Use copilot
+    pass
+
+# with_budget
+with with_budget(limit=10.00, warn_at=0.8) as budget:
+    # Use budget
+    pass
+
+# monitored
+with monitored(name="operation", budget_limit=10.00) as copilot:
+    # Use copilot
+    pass</code></pre>
+
+                <h3>Decorators</h3>
+                <pre><code>from token_copilot.decorators import track_cost, enforce_budget, monitored
+
+@track_cost(budget_limit=5.00)
+def my_function(text):
+    # Function has .copilot attribute
+    pass
+
+@enforce_budget(limit=1.00, on_exceeded="raise")
+def expensive_function(copilot):
+    # copilot passed as argument
+    pass
+
+@monitored(name="task", budget_limit=10.00)
+def monitored_function(data, copilot):
+    # Automatically logged
+    pass</code></pre>
+            </section>
+
+            <!-- Examples -->
+            <section id="examples" class="section">
+                <h2>Complete Examples</h2>
+
+                <h3>Example 1: Simple Chatbot</h3>
+                <pre><code>from token_copilot import TokenCoPilot
+from langchain_openai import ChatOpenAI
+
+def chatbot():
+    copilot = TokenCoPilot(budget_limit=5.00, on_budget_exceeded="warn")
+    llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[copilot])
+
+    print("Chatbot started! (type 'quit' to exit)")
+
+    while True:
+        user_input = input("\nYou: ")
+        if user_input.lower() == 'quit':
+            break
+
+        # Check budget
+        if copilot.get_remaining_budget() <= 0:
+            print("Budget exhausted!")
+            break
+
+        response = llm.invoke(user_input)
+        print(f"Bot: {response.content}")
+        print(f"Cost this turn: ${copilot.tracker.get_last_cost():.6f}")
+
+    # Final stats
+    stats = copilot.get_stats()
+    print(f"\nSession Summary:")
+    print(f"Total turns: {stats['total_calls']}")
+    print(f"Total cost: ${stats['total_cost']:.4f}")
+    print(f"Average cost/turn: ${stats['avg_cost_per_call']:.4f}")
+
+if __name__ == "__main__":
+    chatbot()</code></pre>
+
+                <h3>Example 2: Multi-User API</h3>
+                <pre><code>from flask import Flask, request, jsonify
+from token_copilot import TokenCoPilot
+from langchain_openai import ChatOpenAI
+
+app = Flask(__name__)
+
+# Global copilot with per-user budgets
+copilot = TokenCoPilot(
+    budget_limit=10.00,
+    budget_period="per_user",
+    on_budget_exceeded="raise"
+)
+
+llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[copilot])
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.json
+    user_id = data.get('user_id')
+    message = data.get('message')
+
+    # Check user's remaining budget
+    remaining = copilot.get_remaining_budget(metadata={"user_id": user_id})
+    if remaining <= 0:
+        return jsonify({"error": "Budget exhausted"}), 429
+
+    # Process request
+    try:
+        response = llm.invoke(
+            message,
+            config={"metadata": {"user_id": user_id}}
+        )
+
+        return jsonify({
+            "response": response.content,
+            "cost": copilot.tracker.get_last_cost(),
+            "remaining_budget": copilot.get_remaining_budget(
+                metadata={"user_id": user_id}
+            )
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/stats/<user_id>', methods=['GET'])
+def get_stats(user_id):
+    user_costs = copilot.tracker.get_costs_by("user_id")
+    return jsonify({
+        "user_id": user_id,
+        "total_cost": user_costs.get(user_id, 0.0),
+        "remaining_budget": copilot.get_remaining_budget(
+            metadata={"user_id": user_id}
+        )
+    })
+
+if __name__ == '__main__':
+    app.run(debug=True)</code></pre>
+
+                <h3>Example 3: Production Monitoring</h3>
+                <pre><code>from token_copilot.presets import production
+from langchain_openai import ChatOpenAI
+import os
+
+# Production setup with all monitoring
+copilot = production(
+    budget_limit=1000.00,
+    webhook_url=os.getenv("WEBHOOK_URL"),
+    slack_webhook=os.getenv("SLACK_WEBHOOK"),
+    detect_anomalies=True,
+    enable_forecasting=True
+)
+
+llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[copilot])
+
+# Your application logic
+def process_request(user_input):
+    response = llm.invoke(user_input)
+    return response.content
+
+# Monitoring happens automatically:
+# - Costs tracked
+# - Anomalies detected
+# - Alerts sent to Slack/webhook
+# - Budget forecasted
+# - All data exportable
+
+# Periodic reporting
+def generate_report():
+    df = copilot.to_dataframe()
+
+    # Daily summary
+    print("Daily Summary:")
+    print(f"Total cost: ${df['cost'].sum():.2f}")
+    print(f"Total calls: {len(df)}")
+    print(f"Average cost: ${df['cost'].mean():.4f}")
+
+    # Top users
+    user_costs = df.groupby('user_id')['cost'].sum().sort_values(ascending=False)
+    print("\nTop 10 users by cost:")
+    print(user_costs.head(10))
+
+    # Save report
+    df.to_csv(f'daily_report_{datetime.now().date()}.csv')</code></pre>
+
+                <h3>Example 4: RAG Application</h3>
+                <pre><code>from token_copilot import TokenCoPilot, track_costs
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.llms.openai import OpenAI
+from llama_index.core import Settings
+
+def build_rag_system():
+    # Load documents
+    documents = SimpleDirectoryReader("docs").load_data()
+
+    # Configure with cost tracking
+    copilot = TokenCoPilot(budget_limit=20.00)
+    llm = OpenAI(model="gpt-4o-mini")
+
+    # Note: LlamaIndex integration via TokenCoPilotCallbackHandler
+    from token_copilot.llamaindex import TokenCoPilotCallbackHandler
+    handler = TokenCoPilotCallbackHandler(budget_limit=20.00)
+
+    Settings.llm = llm
+    Settings.callback_manager.add_handler(handler)
+
+    # Build index (costs tracked)
+    print("Building index...")
+    index = VectorStoreIndex.from_documents(documents)
+    print(f"Index cost: ${handler.get_total_cost():.4f}")
+
+    # Create query engine
+    query_engine = index.as_query_engine()
+
+    # Query with cost tracking
+    def query(question):
+        initial_cost = handler.get_total_cost()
+        response = query_engine.query(question)
+        query_cost = handler.get_total_cost() - initial_cost
+
+        return {
+            "answer": response.response,
+            "cost": query_cost,
+            "remaining": handler.get_remaining_budget()
+        }
+
+    return query
+
+# Use the system
+query_fn = build_rag_system()
+
+questions = [
+    "What is the main topic?",
+    "Summarize the key points",
+    "What are the recommendations?"
+]
+
+for q in questions:
+    result = query_fn(q)
+    print(f"\nQ: {q}")
+    print(f"A: {result['answer']}")
+    print(f"Cost: ${result['cost']:.4f}")
+    print(f"Remaining: ${result['remaining']:.2f}")</code></pre>
+            </section>
+
+            <!-- FAQ -->
+            <section id="faq" class="section">
+                <h2>Frequently Asked Questions</h2>
+
+                <h3>Does this work with streaming responses?</h3>
+                <p>Currently tracks costs after completion. Full streaming support coming in v1.0.3.</p>
+
+                <h3>Can I use without LangChain?</h3>
+                <p>Yes! Use <code>MultiTenantTracker</code> directly:</p>
+                <pre><code>from token_copilot.tracking import MultiTenantTracker
+
+tracker = MultiTenantTracker()
+entry = tracker.track(
+    model="gpt-4o-mini",
+    input_tokens=100,
+    output_tokens=50
+)
+print(f"Cost: ${entry.cost:.6f}")</code></pre>
+
+                <h3>Which usage pattern should I use?</h3>
+                <ul>
+                    <li><strong>Getting started</strong>: Minimal or Factory presets</li>
+                    <li><strong>Production</strong>: Builder or Production preset</li>
+                    <li><strong>Reusable code</strong>: Decorators or Context managers</li>
+                    <li><strong>Enterprise</strong>: Enterprise preset</li>
+                </ul>
+
+                <h3>Can I create custom plugins?</h3>
+                <p>Yes! Extend the <code>Plugin</code> base class:</p>
+                <pre><code>from token_copilot.core import Plugin
+
+class MyPlugin(Plugin):
+    def on_cost_tracked(self, model, tokens, cost, metadata):
+        # Custom logic
+        print(f"Cost tracked: ${cost:.6f}")
+
+copilot = TokenCoPilot()
+copilot.add_plugin(MyPlugin())</code></pre>
+
+                <h3>How accurate is the cost tracking?</h3>
+                <p>Uses official pricing from OpenAI and Anthropic. Updated regularly. Accuracy depends on correct model identification.</p>
+
+                <h3>Does it support other LLM providers?</h3>
+                <p>Yes! Supports:</p>
+                <ul>
+                    <li>OpenAI (including Azure OpenAI)</li>
+                    <li>Anthropic (Claude models)</li>
+                    <li>Ollama (local models)</li>
+                </ul>
+
+                <h3>Can I track costs for multiple projects?</h3>
+                <p>Yes! Use metadata to separate projects:</p>
+                <pre><code>copilot = TokenCoPilot()
+llm = ChatOpenAI(callbacks=[copilot])
+
+result = llm.invoke(
+    "Hello",
+    config={"metadata": {"project_id": "project_123"}}
+)
+
+# Get costs by project
+project_costs = copilot.tracker.get_costs_by("project_id")</code></pre>
+
+                <h3>How do I handle budget resets?</h3>
+                <p>For daily/monthly budgets, implement a scheduler:</p>
+                <pre><code>import schedule
+import time
+
+def reset_budget():
+    copilot.tracker.clear()
+    print("Budget reset!")
+
+# Reset daily at midnight
+schedule.every().day.at("00:00").do(reset_budget)
+
+while True:
+    schedule.run_pending()
+    time.sleep(60)</code></pre>
+
+                <h3>Can I export to formats other than CSV?</h3>
+                <p>Yes! Pandas DataFrame supports many formats:</p>
+                <pre><code>df = copilot.to_dataframe()
+
+# Excel
+df.to_excel('costs.xlsx')
+
+# JSON
+df.to_json('costs.json')
+
+# Parquet
+df.to_parquet('costs.parquet')
+
+# SQL database
+df.to_sql('costs', con=engine)</code></pre>
+
+                <h3>How do I get support?</h3>
+                <ul>
+                    <li><strong>GitHub Issues</strong>: <a href="https://github.com/scionoftech/token-copilot/issues" target="_blank">Report bugs or request features</a></li>
+                    <li><strong>Documentation</strong>: <a href="https://github.com/scionoftech/token-copilot" target="_blank">GitHub README</a></li>
+                </ul>
+            </section>
+
+            <!-- Footer -->
+            <div style="margin-top: 80px; padding-top: 30px; border-top: 2px solid var(--bg-color); text-align: center; color: #7f8c8d;">
+                <p><strong>Token-Copilot v1.0.2</strong></p>
+                <p>Built with ❤️ by <a href="https://github.com/scionoftech" style="color: var(--secondary-color);">Sai Kumar Yava</a></p>
+                <p>
+                    <a href="https://github.com/scionoftech/token-copilot" style="color: var(--secondary-color); margin: 0 10px;">GitHub</a> |
+                    <a href="https://pypi.org/project/token-copilot/" style="color: var(--secondary-color); margin: 0 10px;">PyPI</a> |
+                    <a href="https://github.com/scionoftech/token-copilot/blob/main/LICENSE" style="color: var(--secondary-color); margin: 0 10px;">MIT License</a>
+                </p>
+            </div>
+        </main>
+
+        <!-- Scroll to Top Button -->
+        <a href="#overview" class="scroll-top">↑</a>
+    </div>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight active section in navigation
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('.sidebar nav a');
+
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.background = '';
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.style.background = 'rgba(52, 152, 219, 0.2)';
+                }
+            });
+        });
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', () => {
+            const scrollTop = document.querySelector('.scroll-top');
+            if (window.pageYOffset > 300) {
+                scrollTop.style.display = 'flex';
+            } else {
+                scrollTop.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

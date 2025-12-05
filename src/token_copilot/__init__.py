@@ -1,132 +1,89 @@
 """
 token_copilot - Your AI copilot for LLM costs.
 
-Multi-tenant cost tracking for LangChain, LangGraph, and LlamaIndex applications.
-A comprehensive library for tracking, analyzing, and optimizing LLM costs in production.
+A modern, plugin-based library for tracking, analyzing, and optimizing LLM costs
+in production. Works seamlessly with LangChain, LangGraph, and LlamaIndex.
+
+Quick Start (Minimal):
+    ```python
+    from token_copilot import TokenCoPilot
+    from langchain_openai import ChatOpenAI
+
+    copilot = TokenCoPilot(budget_limit=10.00)
+    llm = ChatOpenAI(callbacks=[copilot])
+
+    result = llm.invoke("Hello!")
+    print(f"Cost: ${copilot.cost:.4f}")
+    ```
+
+Quick Start (Builder Pattern):
+    ```python
+    copilot = (TokenCoPilot(budget_limit=100.00)
+        .with_streaming(webhook_url="https://example.com/webhook")
+        .with_analytics(detect_anomalies=True)
+        .with_adaptive()
+        .build()
+    )
+    llm = ChatOpenAI(callbacks=[copilot])
+    ```
+
+Quick Start (Factory Preset):
+    ```python
+    from token_copilot.presets import production
+
+    copilot = production(
+        budget_limit=1000.00,
+        webhook_url="https://monitoring.example.com",
+    )
+    llm = ChatOpenAI(callbacks=[copilot])
+    ```
+
+Quick Start (Context Manager):
+    ```python
+    from token_copilot import track_costs
+
+    with track_costs(budget_limit=5.00) as copilot:
+        llm = ChatOpenAI(callbacks=[copilot])
+        result = llm.invoke("Hello!")
+        print(f"Cost: ${copilot.cost:.4f}")
+    ```
+
+Quick Start (Decorator):
+    ```python
+    from token_copilot.decorators import track_cost
+
+    @track_cost(budget_limit=5.00)
+    def process_text(text):
+        llm = ChatOpenAI(callbacks=[process_text.copilot])
+        return llm.invoke(f"Process: {text}")
+
+    result = process_text("my text")
+    print(f"Cost: ${process_text.copilot.cost:.4f}")
+    ```
 
 Features:
-- **Framework Support**: Works with LangChain, LangGraph, and LlamaIndex
-- Automatic cost tracking via callbacks
-- Multi-tenant support (track by user, organization, session, etc.)
-- Budget enforcement with hard stops
-- Pandas DataFrame export for analytics
-- Token waste analysis (detect repeated prompts, excessive context, verbose outputs)
-- Efficiency scoring with leaderboards
-- Anomaly detection with alerts (cost/token/frequency spikes)
-- Customizable alert handlers (log, webhook, Slack)
-- Cross-model routing (route to cheapest suitable model)
-- Predictive budget alerts (forecast exhaustion)
-- Smart request queuing with priorities
-- Multiple routing strategies (CHEAPEST_FIRST, QUALITY_FIRST, BALANCED, etc.)
-- Zero configuration required
-
-Quick Start (LangChain):
-    ```python
-    from langchain import ChatOpenAI
-    from token_copilot import TokenPilotCallback
-
-    callback = TokenPilotCallback(budget_limit=100.00)
-    llm = ChatOpenAI(callbacks=[callback])
-
-    # Get analytics
-    print(f"Total cost: ${callback.get_total_cost():.4f}")
-    ```
-
-Quick Start (LangGraph):
-    ```python
-    from langgraph.graph import StateGraph
-    from langchain_openai import ChatOpenAI
-    from token_copilot import TokenPilotCallback
-
-    callback = TokenPilotCallback(budget_limit=100.00)
-
-    # Create graph with callback
-    builder = StateGraph(State)
-    builder.add_node("agent", agent_node)
-    builder.add_edge(START, "agent")
-    graph = builder.compile()
-
-    # Run with cost tracking
-    result = graph.invoke(
-        {"messages": [("user", "Hello")]},
-        config={"callbacks": [callback]}
-    )
-
-    # Get analytics
-    print(f"Total cost: ${callback.get_total_cost():.4f}")
-    ```
-
-Quick Start (LlamaIndex):
-    ```python
-    from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
-    from llama_index.core.callbacks import CallbackManager
-    from token_copilot import TokenPilotCallbackHandler
-
-    callback = TokenPilotCallbackHandler(budget_limit=100.00)
-    callback_manager = CallbackManager([callback])
-
-    documents = SimpleDirectoryReader("data").load_data()
-    index = VectorStoreIndex.from_documents(
-        documents,
-        callback_manager=callback_manager
-    )
-
-    # Get analytics
-    print(f"Total cost: ${callback.get_total_cost():.4f}")
-    ```
-
-Advanced Features:
-    ```python
-    from token_copilot.analytics import log_alert
-    from token_copilot.routing import ModelConfig, RoutingStrategy
-    from token_copilot.queuing import QueueMode
-
-    # Full optimization (works with both frameworks)
-    models = [
-        ModelConfig("gpt-4o-mini", 0.7, 0.15, 0.60, 128000),
-        ModelConfig("gpt-4o", 0.9, 5.0, 15.0, 128000),
-    ]
-    callback = TokenPilotCallback(  # or TokenPilotCallbackHandler
-        budget_limit=100.00,
-        anomaly_detection=True,
-        alert_handlers=[log_alert],
-        auto_routing=True,
-        routing_models=models,
-        routing_strategy=RoutingStrategy.BALANCED,
-        predictive_alerts=True,
-        queue_mode=QueueMode.SMART
-    )
-
-    # Analytics
-    waste_report = callback.analyze_waste()
-    efficiency = callback.get_efficiency_score('user_id', 'user_123')
-    forecast = callback.get_forecast()
-    ```
+- **Zero Config**: Start tracking with one line
+- **Plugin-Based**: Add features as needed
+- **Multi-Pattern**: Builder, factory, context managers, decorators
+- **Multi-Tenant**: Track by user, organization, session
+- **Budget Enforcement**: Hard stops at limits
+- **Real-Time Streaming**: Webhook, Kafka, syslog, OTLP
+- **Advanced Analytics**: Waste detection, anomaly alerts
+- **Adaptive Operations**: Auto-adjust parameters by budget
+- **Model Routing**: Intelligent model selection
+- **Forecasting**: Predict budget exhaustion
 
 Learn more: https://github.com/scionoftech/token-copilot
 """
 
-__version__ = "1.0.0"
-__author__ = "scionoftech"
+__version__ = "1.0.2"
+__author__ = "Sai Kumar Yava"
+
+# Core
+from .core import TokenCoPilot, Plugin
 
 # Core tracking (always available)
 from .tracking import MultiTenantTracker, CostEntry, BudgetEnforcer
-
-# Primary API - LangChain integration (optional)
-try:
-    from .langchain import TokenPilotCallback
-    _LANGCHAIN_AVAILABLE = True
-except ImportError:
-    _LANGCHAIN_AVAILABLE = False
-    TokenPilotCallback = None  # type: ignore
-
-# LlamaIndex integration (optional)
-try:
-    from .llamaindex import TokenPilotCallbackHandler
-    _LLAMAINDEX_AVAILABLE = True
-except ImportError:
-    _LLAMAINDEX_AVAILABLE = False
-    TokenPilotCallbackHandler = None  # type: ignore
 
 # Utilities
 from .utils import (
@@ -145,7 +102,20 @@ from .utils import (
     list_providers,
 )
 
-# Analytics module (optional)
+# Plugins (lazy-loaded)
+from . import plugins
+
+# Factory presets
+from . import presets
+from .presets import basic, development, production, enterprise, quick
+
+# Context managers
+from .context import track_costs, with_budget, monitored
+
+# Decorators
+from . import decorators
+
+# Analytics (optional)
 try:
     from .analytics import (
         WasteAnalyzer,
@@ -173,7 +143,7 @@ except ImportError:
     webhook_alert = None  # type: ignore
     slack_alert = None  # type: ignore
 
-# Routing module (optional)
+# Routing (optional)
 try:
     from .routing import (
         ModelRouter,
@@ -189,7 +159,7 @@ except ImportError:
     RoutingDecision = None  # type: ignore
     RouterModelConfig = None  # type: ignore
 
-# Forecasting module (optional)
+# Forecasting (optional)
 try:
     from .forecasting import (
         BudgetPredictor,
@@ -207,27 +177,41 @@ except ImportError:
     AlertManager = None  # type: ignore
     AlertRule = None  # type: ignore
 
-# Queuing module (optional)
+# Adaptive operations (optional)
 try:
-    from .queuing import (
-        QueueManager,
-        QueueMode,
-        Priority,
-        QueuedRequest,
+    from .adaptive import (
+        TokenAwareOperations,
+        BudgetTier,
+        classify_budget_tier,
+        get_tier_description,
+        token_aware,
+        budget_gate,
+        track_efficiency,
+        adaptive_context,
+        budget_aware_section,
+        get_current_callback,
+        set_current_callback,
     )
-    _QUEUING_AVAILABLE = True
+    _ADAPTIVE_AVAILABLE = True
 except ImportError:
-    _QUEUING_AVAILABLE = False
-    QueueManager = None  # type: ignore
-    QueueMode = None  # type: ignore
-    Priority = None  # type: ignore
-    QueuedRequest = None  # type: ignore
+    _ADAPTIVE_AVAILABLE = False
+    TokenAwareOperations = None  # type: ignore
+    BudgetTier = None  # type: ignore
+    classify_budget_tier = None  # type: ignore
+    get_tier_description = None  # type: ignore
+    token_aware = None  # type: ignore
+    budget_gate = None  # type: ignore
+    track_efficiency = None  # type: ignore
+    adaptive_context = None  # type: ignore
+    budget_aware_section = None  # type: ignore
+    get_current_callback = None  # type: ignore
+    set_current_callback = None  # type: ignore
 
 __all__ = [
-    # Primary API
-    "TokenPilotCallback",  # LangChain
-    "TokenPilotCallbackHandler",  # LlamaIndex
-    # Core (advanced)
+    # Core
+    "TokenCoPilot",
+    "Plugin",
+    # Core tracking (advanced)
     "MultiTenantTracker",
     "CostEntry",
     "BudgetEnforcer",
@@ -244,6 +228,20 @@ __all__ = [
     "calculate_cost",
     "list_models",
     "list_providers",
+    # Modules
+    "plugins",
+    "presets",
+    "decorators",
+    # Factory presets
+    "basic",
+    "development",
+    "production",
+    "enterprise",
+    "quick",
+    # Context managers
+    "track_costs",
+    "with_budget",
+    "monitored",
     # Analytics
     "WasteAnalyzer",
     "WasteCategory",
@@ -266,9 +264,16 @@ __all__ = [
     "Trend",
     "AlertManager",
     "AlertRule",
-    # Queuing
-    "QueueManager",
-    "QueueMode",
-    "Priority",
-    "QueuedRequest",
+    # Adaptive operations
+    "TokenAwareOperations",
+    "BudgetTier",
+    "classify_budget_tier",
+    "get_tier_description",
+    "token_aware",
+    "budget_gate",
+    "track_efficiency",
+    "adaptive_context",
+    "budget_aware_section",
+    "get_current_callback",
+    "set_current_callback",
 ]

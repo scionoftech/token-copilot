@@ -1,8 +1,9 @@
 """Basic usage example for token_copilot with LangChain."""
 
 import os
-from langchain import ChatOpenAI, LLMChain, PromptTemplate
-from token_copilot import TokenPilotCallback
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import PromptTemplate
+from token_copilot import TokenCoPilotCallback
 
 # Make sure you have OPENAI_API_KEY set
 if not os.getenv("OPENAI_API_KEY"):
@@ -15,15 +16,15 @@ def example_basic():
     print("=== Example 1: Basic Cost Tracking ===\n")
 
     # Create callback
-    callback = TokenPilotCallback()
+    callback = TokenCoPilotCallback()
 
-    # Create LangChain components
-    llm = ChatOpenAI(model="gpt-3.5-turbo", callbacks=[callback])
+    # Create LangChain components using LCEL
+    llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
     prompt = PromptTemplate(
         input_variables=["question"],
         template="Answer this question briefly: {question}"
     )
-    chain = LLMChain(llm=llm, prompt=prompt)
+    chain = prompt | llm
 
     # Make some calls
     questions = [
@@ -33,9 +34,10 @@ def example_basic():
     ]
 
     for q in questions:
-        result = chain.run(q)
+        result = chain.invoke({"question": q})
+        content = result.content if hasattr(result, 'content') else str(result)
         print(f"Q: {q}")
-        print(f"A: {result}\n")
+        print(f"A: {content}\n")
 
     # Get stats
     print(f"Total cost: ${callback.get_total_cost():.4f}")
@@ -48,23 +50,26 @@ def example_budget_enforcement():
     print("=== Example 2: Budget Enforcement ===\n")
 
     # Create callback with $0.01 budget limit
-    callback = TokenPilotCallback(budget_limit=0.01)
+    callback = TokenCoPilotCallback(budget_limit=0.01)
 
-    llm = ChatOpenAI(model="gpt-3.5-turbo", callbacks=[callback])
-    chain = LLMChain(llm=llm, prompt=PromptTemplate(
+    llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
+    prompt = PromptTemplate(
         input_variables=["question"],
         template="{question}"
-    ))
+    )
+    chain = prompt | llm
 
     try:
         # This should work
-        result = chain.run("Say hello")
-        print(f"First call: {result}")
+        result = chain.invoke({"question": "Say hello"})
+        content = result.content if hasattr(result, 'content') else str(result)
+        print(f"First call: {content}")
         print(f"Remaining: ${callback.get_remaining_budget():.4f}\n")
 
         # This might exceed budget
-        result = chain.run("Write a long story about AI" * 100)
-        print(f"Second call: {result}")
+        result = chain.invoke({"question": "Write a long story about AI" * 100})
+        content = result.content if hasattr(result, 'content') else str(result)
+        print(f"Second call: {content}")
 
     except Exception as e:
         print(f"Budget exceeded: {e}\n")
@@ -75,13 +80,14 @@ def example_multi_tenant():
     """Multi-tenant cost tracking."""
     print("=== Example 3: Multi-Tenant Tracking ===\n")
 
-    callback = TokenPilotCallback()
+    callback = TokenCoPilotCallback()
 
-    llm = ChatOpenAI(model="gpt-3.5-turbo", callbacks=[callback])
-    chain = LLMChain(llm=llm, prompt=PromptTemplate(
+    llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
+    prompt = PromptTemplate(
         input_variables=["question"],
         template="{question}"
-    ))
+    )
+    chain = prompt | llm
 
     # Track calls for different users
     users = [
@@ -91,11 +97,12 @@ def example_multi_tenant():
     ]
 
     for user in users:
-        result = chain.run(
-            "Hello, how are you?",
-            metadata=user
+        result = chain.invoke(
+            {"question": "Hello, how are you?"},
+            config={"metadata": user}
         )
-        print(f"{user['user_id']}: {result[:50]}...")
+        content = result.content if hasattr(result, 'content') else str(result)
+        print(f"{user['user_id']}: {content[:50]}...")
 
     # Get analytics
     print("\nCosts by user:")
@@ -117,22 +124,23 @@ def example_pandas_analytics():
         print("pandas not installed. Install with: pip install pandas")
         return
 
-    callback = TokenPilotCallback()
+    callback = TokenCoPilotCallback()
 
-    llm = ChatOpenAI(model="gpt-3.5-turbo", callbacks=[callback])
-    chain = LLMChain(llm=llm, prompt=PromptTemplate(
+    llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
+    prompt = PromptTemplate(
         input_variables=["question"],
         template="{question}"
-    ))
+    )
+    chain = prompt | llm
 
     # Make calls with metadata
     for i in range(5):
-        chain.run(
-            f"Question {i}",
-            metadata={
+        chain.invoke(
+            {"question": f"Question {i}"},
+            config={"metadata": {
                 "user_id": f"user_{i % 2}",  # 2 users
                 "feature": "chat" if i % 2 == 0 else "summarize"
-            }
+            }}
         )
 
     # Export to DataFrame

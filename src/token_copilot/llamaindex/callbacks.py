@@ -3,17 +3,25 @@
 from typing import Any, Dict, List, Optional, Callable
 
 try:
-    from llama_index.core.callbacks import BaseCallbackHandler, CBEventType
-    from llama_index.core.callbacks.schema import CBEventType as EventType
+    from llama_index.core.callbacks.base_handler import BaseCallbackHandler
+    from llama_index.core.callbacks.schema import CBEventType
+    EventType = CBEventType  # Alias for backward compatibility
 except ImportError:
     try:
         # Fallback for older LlamaIndex versions
-        from llama_index.callbacks import BaseCallbackHandler, CBEventType
-        from llama_index.callbacks.schema import CBEventType as EventType
+        from llama_index.callbacks.base_handler import BaseCallbackHandler
+        from llama_index.callbacks.schema import CBEventType
+        EventType = CBEventType
     except ImportError:
-        BaseCallbackHandler = object
-        CBEventType = None
-        EventType = None
+        try:
+            # Even older versions
+            from llama_index.callbacks.base import BaseCallbackHandler
+            from llama_index.callbacks.schema import CBEventType
+            EventType = CBEventType
+        except ImportError:
+            BaseCallbackHandler = object
+            CBEventType = None
+            EventType = None
 
 from ..tracking import MultiTenantTracker, BudgetEnforcer
 
@@ -52,7 +60,7 @@ except ImportError:
     Priority = None
 
 
-class TokenPilotCallbackHandler(BaseCallbackHandler):
+class TokenCoPilotCallbackHandler(BaseCallbackHandler):
     """
     LlamaIndex callback handler for automatic cost tracking and budget enforcement.
 
@@ -74,10 +82,10 @@ class TokenPilotCallbackHandler(BaseCallbackHandler):
     Example:
         >>> from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
         >>> from llama_index.core.callbacks import CallbackManager
-        >>> from token_copilot.llamaindex import TokenPilotCallbackHandler
+        >>> from token_copilot.llamaindex import TokenCoPilotCallbackHandler
         >>>
         >>> # Create callback with budget limit
-        >>> callback = TokenPilotCallbackHandler(budget_limit=10.00)
+        >>> callback = TokenCoPilotCallbackHandler(budget_limit=10.00)
         >>> callback_manager = CallbackManager([callback])
         >>>
         >>> # Use with LlamaIndex
@@ -104,6 +112,9 @@ class TokenPilotCallbackHandler(BaseCallbackHandler):
         budget_period: str = "total",
         on_budget_exceeded: str = "raise",
 
+        # Streaming params
+        streamer: Optional[Any] = None,  # BaseStreamer
+
         # Analytics params
         anomaly_detection: bool = False,
         anomaly_sensitivity: float = 3.0,
@@ -127,12 +138,15 @@ class TokenPilotCallbackHandler(BaseCallbackHandler):
         event_ends_to_ignore: Optional[List] = None,
     ):
         """
-        Initialize TokenPilotCallbackHandler.
+        Initialize TokenCoPilotCallbackHandler.
 
         Args:
             budget_limit: Budget limit in USD (None = no limit)
             budget_period: Budget period (total, daily, monthly, per_user, per_org)
             on_budget_exceeded: Behavior when exceeded (raise, warn, ignore)
+
+            streamer: Optional BaseStreamer for real-time cost event streaming
+                (WebhookStreamer, SyslogStreamer, LogstashStreamer, etc.)
 
             anomaly_detection: Enable anomaly detection
             anomaly_sensitivity: Standard deviation threshold (default 3.0)
@@ -152,9 +166,9 @@ class TokenPilotCallbackHandler(BaseCallbackHandler):
             event_ends_to_ignore: List of event types to ignore on end
 
         Example:
-            >>> from token_copilot.llamaindex import TokenPilotCallbackHandler
+            >>> from token_copilot.llamaindex import TokenCoPilotCallbackHandler
             >>> from token_copilot.analytics import log_alert
-            >>> callback = TokenPilotCallbackHandler(
+            >>> callback = TokenCoPilotCallbackHandler(
             ...     budget_limit=100.00,
             ...     anomaly_detection=True,
             ...     alert_handlers=[log_alert]
@@ -174,6 +188,9 @@ class TokenPilotCallbackHandler(BaseCallbackHandler):
         )
         # Keep backward compatibility
         self.budget = self.budget_enforcer
+
+        # Store streaming component
+        self.streamer = streamer
 
         # Store event data
         self._event_data: Dict[str, Dict] = {}
@@ -342,6 +359,32 @@ class TokenPilotCallbackHandler(BaseCallbackHandler):
 
         # Update budget
         self.budget_enforcer.add(entry.cost, metadata)
+
+        # Stream event to external system if configured
+        if self.streamer:
+            try:
+                from ..streaming.base import StreamEvent
+                stream_event = StreamEvent(
+                    timestamp=entry.timestamp,
+                    event_type="llm_cost",
+                    model=entry.model,
+                    input_tokens=entry.input_tokens,
+                    output_tokens=entry.output_tokens,
+                    total_tokens=entry.input_tokens + entry.output_tokens,
+                    cost=entry.cost,
+                    user_id=entry.user_id,
+                    org_id=entry.org_id,
+                    session_id=entry.session_id,
+                    feature=entry.feature,
+                    endpoint=entry.endpoint,
+                    environment=entry.environment,
+                    metadata=entry.tags,
+                )
+                self.streamer.send_if_enabled(stream_event)
+            except Exception as e:
+                # Don't fail tracking if streaming fails
+                import logging
+                logging.warning(f"Failed to stream event: {e}")
 
         # Check for anomalies
         if self.anomaly_detector:

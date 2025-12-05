@@ -6,9 +6,8 @@ in a LangChain application.
 """
 
 from langchain_openai import ChatOpenAI
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
-from token_copilot import TokenPilotCallback
+from langchain_core.prompts import PromptTemplate
+from token_copilot import TokenCoPilotCallback
 
 
 def simple_tracking():
@@ -18,7 +17,7 @@ def simple_tracking():
     print("=" * 60)
 
     # Create callback - that's it!
-    callback = TokenPilotCallback()
+    callback = TokenCoPilotCallback()
 
     # Use with any LangChain LLM
     llm = ChatOpenAI(
@@ -43,7 +42,7 @@ def with_budget_limit():
     print("=" * 60)
 
     # Set a budget limit
-    callback = TokenPilotCallback(budget_limit=0.10)  # $0.10 limit
+    callback = TokenCoPilotCallback(budget_limit=0.10)  # $0.10 limit
 
     llm = ChatOpenAI(
         model="gpt-4o-mini",
@@ -70,12 +69,12 @@ def with_budget_limit():
 
 
 def with_chain():
-    """Example using LangChain chains."""
+    """Example using LangChain chains (LCEL)."""
     print("\n" + "=" * 60)
-    print("Example 3: With LangChain Chains")
+    print("Example 3: With LangChain Chains (LCEL)")
     print("=" * 60)
 
-    callback = TokenPilotCallback(budget_limit=1.00)
+    callback = TokenCoPilotCallback(budget_limit=1.00)
 
     # Create a prompt template
     prompt = PromptTemplate(
@@ -83,16 +82,18 @@ def with_chain():
         template="Explain {topic} in one sentence."
     )
 
-    # Create chain
+    # Create chain using LCEL (LangChain Expression Language)
     llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
-    chain = LLMChain(llm=llm, prompt=prompt)
+    chain = prompt | llm
 
     # Run chain multiple times
     topics = ["Python", "JavaScript", "Rust", "Go", "TypeScript"]
 
     for topic in topics:
         result = chain.invoke({"topic": topic})
-        print(f"\n{topic}: {result['text']}")
+        # Extract content from AIMessage
+        content = result.content if hasattr(result, 'content') else str(result)
+        print(f"\n{topic}: {content}")
 
     # Get statistics
     print("\n" + "-" * 60)
@@ -110,7 +111,7 @@ def with_different_models():
     print("=" * 60)
 
     # Single callback tracks all models
-    callback = TokenPilotCallback(budget_limit=5.00)
+    callback = TokenCoPilotCallback(budget_limit=5.00)
 
     # Create different model instances
     gpt4_mini = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
@@ -141,7 +142,7 @@ def export_to_dataframe():
     print("Example 5: Export to DataFrame")
     print("=" * 60)
 
-    callback = TokenPilotCallback()
+    callback = TokenCoPilotCallback()
 
     llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
 
